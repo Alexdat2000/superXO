@@ -20,6 +20,10 @@
     position: relative;
 }
 
+.last-move {
+    background-color: #CDE5D3;
+}
+
 .available:hover {
     background-color: #C2E2D3;
     cursor: pointer;

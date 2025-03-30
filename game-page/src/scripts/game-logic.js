@@ -5,7 +5,7 @@ let fieldString = " ".repeat(81); // Initialize the global field string
 let lastMove = -1;
 
 export function start() {
-    update_field(fieldString, currentPlayer);
+    update_field(fieldString, currentPlayer, lastMove);
 }
 
 export function calcDeadArea() {
@@ -89,6 +89,6 @@ export function place(row, col) {
         fieldString = fieldString.substring(0, index) + currentPlayer + fieldString.substring(index + 1);
         lastMove = index;
         currentPlayer = currentPlayer === "X" ? "O" : "X";
-        update_field(fieldString, currentPlayer);
+        update_field(fieldString, currentPlayer, lastMove);
     }
 }

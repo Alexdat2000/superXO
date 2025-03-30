@@ -5,7 +5,7 @@ import moveBlue from "../assets/move-blue.svg"
 
 import {calcDeadArea, getAvailableMoves, place} from "./game-logic";
 
-export function update_field(fieldString, currentPlayer) {
+export function update_field(fieldString, currentPlayer, lastMove) {
     const chessboard = document.getElementById("chessboard");
     chessboard.innerHTML = "";
     // Generate the 9x9 chessboard dynamically
@@ -54,8 +54,10 @@ export function update_field(fieldString, currentPlayer) {
             circleImage.classList.add("tic-tac-toe-image");
             cell.appendChild(circleImage);
         }
+        if (i === lastMove) {
+            cell.classList.add("last-move");
+        }
     }
-
 
     const deadArea = calcDeadArea()
     for (let rowStart = 0; rowStart <= 6; rowStart += 3) {

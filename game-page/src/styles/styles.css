@@ -1,0 +1,90 @@
+body {
+  margin: 0;
+  background: #302e2b;
+
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 100px 1fr 50px;
+
+  font-size: 15px;
+}
+
+header {
+  background: #262522;
+  display: flex;
+  justify-content: left;
+  align-items: center;
+}
+
+main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Chessboard container */
+.chessboard {
+  display: grid;
+  grid-template-columns: repeat(9, 60px);
+  grid-template-rows: repeat(9, 60px);
+}
+
+/* Chessboard cells */
+.cell {
+  width: 60px;
+  height: 60px;
+  border: 1px solid black;
+  box-sizing: border-box;
+  display: flex;           /* Use flexbox for centering */
+  justify-content: center; /* Center horizontally */
+  align-items: center;     /* Center vertically */
+
+  background-color: #eeeed2; /* Light beige */
+}
+
+.available:hover {
+  background-color: #C2E2D3;
+  cursor: pointer;
+}
+
+.dead-area {
+  background-color: rgba(238, 238, 210, 0.8) !important; /* Darken the background */
+}
+
+.dead-area-blue {
+  background-color: #B3CCDE !important;
+}
+
+.dead-area-orange {
+  background-color: #F3CA9E !important;
+}
+
+/* Vertical borders every 3 cells */
+.cell:nth-child(3n) {
+  border-right: 0.15em solid black !important;  /* Use !important to ensure precedence */
+}
+
+/* Left border every 3 cells */
+.cell:nth-child(9n+1) {
+  border-left: 0.15em solid black !important;
+}
+
+/* Horizontal borders every 3 rows */
+.chessboard > *:nth-child(n+19):nth-child(-n+27),
+.chessboard > *:nth-child(n+46):nth-child(-n+54) {
+  border-bottom: 0.15em solid black !important; /* Use !important */
+}
+
+/* Top border */
+.chessboard > *:nth-child(-n+9) {
+  border-top: 0.15em solid black !important; /* Use !important */
+}
+
+footer {
+  background: #262522;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #dfdfde;
+  font-size: 1.1rem;
+}

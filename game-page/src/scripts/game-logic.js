@@ -85,7 +85,7 @@ export function getAvailableMoves() {
 
 export function place(row, col) {
     const index = row * 9 + col;
-    if (fieldString[index] === " " && calcDeadArea()[Math.floor(row / 3) * 3 + Math.floor(col / 3)] === " ") {
+    if (getAvailableMoves()[index]) {
         fieldString = fieldString.substring(0, index) + currentPlayer + fieldString.substring(index + 1);
         lastMove = index;
         currentPlayer = currentPlayer === "X" ? "O" : "X";

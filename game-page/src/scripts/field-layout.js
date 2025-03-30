@@ -14,6 +14,19 @@ export function update_field(fieldString, currentPlayer) {
             const cell = document.createElement("div");
             cell.className = "cell";
             cell.id = `cell-${row}-${col}`; // Assign unique ID to each cell
+
+            if (row === 0) {
+                const textElement = document.createElement('div');
+                textElement.className = "column-letter"
+                textElement.textContent = String.fromCharCode(65 + col);
+                cell.appendChild(textElement);
+            }
+            if (col === 0) {
+                const textElement = document.createElement('div');
+                textElement.className = "row-number"
+                textElement.textContent = String.fromCharCode(49 + row);
+                cell.appendChild(textElement);
+            }
             chessboard.appendChild(cell);
         }
     }
@@ -27,7 +40,6 @@ export function update_field(fieldString, currentPlayer) {
     for (let i = 0; i < cells.length; i++) {
         const cell = cells[i];
         const fieldValue = fieldString[i];
-        cell.innerHTML = ""; // Clear existing content
 
         if (fieldValue === "X") {
             const crossImage = document.createElement("img");
@@ -43,6 +55,7 @@ export function update_field(fieldString, currentPlayer) {
             cell.appendChild(circleImage);
         }
     }
+
 
     const deadArea = calcDeadArea()
     for (let rowStart = 0; rowStart <= 6; rowStart += 3) {

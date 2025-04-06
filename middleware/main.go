@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	listen := flag.String("port", "8080", "Port to listen on")
+	listen := flag.String("port", ":8080", "Port to listen on")
 	flag.Parse()
 
 	router := mux.NewRouter()

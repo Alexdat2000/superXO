@@ -126,6 +126,7 @@ func ParseBoard(moves string) ([81]Mark, error) {
 		}
 		board[StringToIndex(curMove)] = Mark(cur)
 		cur = 3 - cur
+		lastMove = curMove
 	}
 	return board, nil
 }

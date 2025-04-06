@@ -5,6 +5,17 @@ import {getMoveFromServer} from "./server-connection";
 let currentPlayer = "X"; // Start with X
 export let moves = ""
 
+const gameRows = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 6, 6],
+]
+
 function getLastMove() {
     if (moves === "") {
         return -1;
@@ -24,6 +35,36 @@ export function GetField() {
     return fieldString;
 }
 
+export function checkWin() {
+    const subwins = calcDeadArea()
+    let winner = " "
+    for (const row of gameRows) {
+        if (subwins[row[0]] !== " " && subwins[row[1]] !== "D" && subwins[row[0]] === subwins[row[1]] && subwins[row[0]] === subwins[row[2]]) {
+            winner = subwins[row[0]]
+        }
+    }
+    if (winner === " " && [...subwins].every(mark => mark !== " ")) {
+        winner = "D"
+    }
+
+    if (winner === " ") {
+        return false;
+    }
+    update_field(moves, currentPlayer, getLastMove(), true);
+    switch (winner) {
+        case "X":
+            alert("Crosses won!")
+            break
+        case "O":
+            alert("Zeroes won!")
+            break
+        case "D":
+            alert("Draw!")
+            break
+    }
+    return true;
+}
+
 export function start() {
     update_field(moves, currentPlayer, getLastMove(), false);
 }
@@ -41,7 +82,7 @@ export function calcDeadArea() {
                 }
             }
 
-            let dead = area.every(mark => mark !== " ") ? "D" : " "
+            let dead = " "
             if (area[0] !== " " && area[0] === area[1] && area[0] === area[2]) {
                 dead = area[0]
             }
@@ -65,6 +106,9 @@ export function calcDeadArea() {
             }
             if (area[2] !== " " && area[2] === area[4] && area[2] === area[6]) {
                 dead = area[2]
+            }
+            if (dead === " " && area.every(mark => mark !== " ")) {
+                dead = "D"
             }
             ans += dead
         }
@@ -111,6 +155,9 @@ export function place(row, col) {
     currentPlayer = currentPlayer === "X" ? "O" : "X";
     moves += IndexToString(index)
     update_field(moves, currentPlayer, getLastMove(), true);
+    if (checkWin()) {
+        return
+    }
 
     getMoveFromServer().then(move => {
         console.log(move)
@@ -120,5 +167,6 @@ export function place(row, col) {
         moves += move
         currentPlayer = currentPlayer === "X" ? "O" : "X";
         update_field(moves, currentPlayer, getLastMove(), false);
+        checkWin();
     })
 }

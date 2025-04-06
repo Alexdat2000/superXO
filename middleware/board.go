@@ -110,12 +110,13 @@ func ValidateMove(board [81]Mark, lastMove, curMove string) error {
 	}
 }
 
-func ValidateBoard(moves string) ([81]Mark, error) {
+func ParseBoard(moves string) ([81]Mark, error) {
 	if len(moves)%2 != 0 {
 		return [81]Mark{}, errors.New("length should be even")
 	}
 
 	board := [81]Mark{}
+	cur := 1
 	var lastMove string
 	for i := 0; i < len(moves); i += 2 {
 		curMove := moves[i : i+2]
@@ -123,6 +124,8 @@ func ValidateBoard(moves string) ([81]Mark, error) {
 		if err != nil {
 			return board, errors.New(fmt.Sprintf("move %d is invalid: %v", i/2+1, err.Error()))
 		}
+		board[StringToIndex(curMove)] = Mark(cur)
+		cur = 3 - cur
 	}
 	return board, nil
 }

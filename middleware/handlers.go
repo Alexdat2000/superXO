@@ -9,7 +9,7 @@ import (
 
 func handleCalculate(w http.ResponseWriter, r *http.Request) {
 	pastMoves := r.URL.Query().Get("moves")
-	board, err := ValidateBoard(pastMoves)
+	board, err := ParseBoard(pastMoves)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = fmt.Fprintf(w, "Invalid moves: %v", pastMoves)

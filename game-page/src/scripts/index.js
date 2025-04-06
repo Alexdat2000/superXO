@@ -1,8 +1,8 @@
 import "../styles/field.css"
 import "../styles/styles.css"
 
-import {start} from "./game-logic";
+import {Start} from "./board-logic";
 
 window.onload = function () {
-    start()
+    Start()
 }

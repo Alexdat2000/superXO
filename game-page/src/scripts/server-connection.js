@@ -1,6 +1,4 @@
-import {moves} from "./game-logic";
-
-export async function getMoveFromServer() {
+export async function GetMoveFromServer(moves) {
     try {
         const response = await fetch('http://localhost:2052/calculate?moves=' + moves);
         if (!response.ok) {
@@ -8,7 +6,6 @@ export async function getMoveFromServer() {
             return "";
         }
         const data = await response
-        console.log(data); // Process the response data
         return data.text();
     } catch (error) {
         console.error(error.message); // Handle any errors

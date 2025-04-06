@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func checkWin(area [9]Mark, pos1, pos2, pos3 int) bool {
+func checkWinInSubarea(area [9]Mark, pos1, pos2, pos3 int) bool {
 	return area[pos1] != MarkEmpty && area[pos1] == area[pos2] && area[pos1] == area[pos3]
 }
 
@@ -21,28 +21,28 @@ func calcSubWinners(board [81]Mark) (ans [9]Winner) {
 			}
 
 			dead := WinnerNone
-			if checkWin(area, 0, 1, 2) {
+			if checkWinInSubarea(area, 0, 1, 2) {
 				dead = MarkToWinner(area[0])
 			}
-			if checkWin(area, 3, 4, 5) {
+			if checkWinInSubarea(area, 3, 4, 5) {
 				dead = MarkToWinner(area[3])
 			}
-			if checkWin(area, 6, 7, 8) {
+			if checkWinInSubarea(area, 6, 7, 8) {
 				dead = MarkToWinner(area[6])
 			}
-			if checkWin(area, 0, 3, 6) {
+			if checkWinInSubarea(area, 0, 3, 6) {
 				dead = MarkToWinner(area[0])
 			}
-			if checkWin(area, 1, 4, 7) {
+			if checkWinInSubarea(area, 1, 4, 7) {
 				dead = MarkToWinner(area[1])
 			}
-			if checkWin(area, 2, 5, 8) {
+			if checkWinInSubarea(area, 2, 5, 8) {
 				dead = MarkToWinner(area[2])
 			}
-			if checkWin(area, 0, 4, 8) {
+			if checkWinInSubarea(area, 0, 4, 8) {
 				dead = MarkToWinner(area[4])
 			}
-			if checkWin(area, 2, 4, 6) {
+			if checkWinInSubarea(area, 2, 4, 6) {
 				dead = MarkToWinner(area[4])
 			}
 			filled := true

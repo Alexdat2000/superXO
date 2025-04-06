@@ -1,6 +1,6 @@
 export async function GetMoveFromServer(moves) {
     try {
-        const response = await fetch('http://localhost:2052/calculate?moves=' + moves);
+        const response = await fetch('/api/calculate?moves=' + moves);
         if (!response.ok) {
             console.error(response.text);
             return "";

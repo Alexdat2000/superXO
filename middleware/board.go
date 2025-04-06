@@ -88,7 +88,7 @@ func GetValidMoves(board [81]Mark, lastMove string) (ans [81]bool, err error) {
 	} else {
 		for i := 0; i < 9; i++ {
 			for j := 0; j < 9; j++ {
-				ans[i] = board[CoordinatesToIndex(i, j)] == MarkEmpty && subWinners[CoordinatesToSubboard(i, j)] == WinnerNone
+				ans[CoordinatesToIndex(i, j)] = board[CoordinatesToIndex(i, j)] == MarkEmpty && subWinners[CoordinatesToSubboard(i, j)] == WinnerNone
 			}
 		}
 	}

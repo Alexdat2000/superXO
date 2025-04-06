@@ -3,9 +3,10 @@ import circle from "../assets/circle.svg"
 import moveOrange from "../assets/move-orange.svg"
 import moveBlue from "../assets/move-blue.svg"
 
-import {calcDeadArea, getAvailableMoves, place} from "./game-logic";
+import {calcDeadArea, getAvailableMoves, GetField, place} from "./game-logic";
 
-export function update_field(fieldString, currentPlayer, lastMove) {
+export function update_field(moves, currentPlayer, lastMove, waitingForAnswer) {
+    const fieldString = GetField(moves);
     const chessboard = document.getElementById("chessboard");
     chessboard.innerHTML = "";
     // Generate the 9x9 chessboard dynamically
@@ -65,6 +66,10 @@ export function update_field(fieldString, currentPlayer, lastMove) {
             for (let i = 0; i < 3; i++) {
                 for (let j = 0; j < 3; j++) {
                     const index = (rowStart + i) * 9 + (colStart + j);
+                    if (waitingForAnswer) {
+                        cells[index].classList.add("dead-area");
+                        continue
+                    }
                     if (deadArea[rowStart + colStart / 3] === " ") {
                         continue;
                     }

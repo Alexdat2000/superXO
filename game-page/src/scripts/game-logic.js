@@ -1,14 +1,35 @@
 import {update_field} from "./field-layout";
+import {IndexToString, StringToIndex} from "./utils";
+import {getMoveFromServer} from "./server-connection";
 
 let currentPlayer = "X"; // Start with X
-let fieldString = " ".repeat(81); // Initialize the global field string
-let lastMove = -1;
+export let moves = ""
+
+function getLastMove() {
+    if (moves === "") {
+        return -1;
+    } else {
+        return StringToIndex(moves.substring(moves.length - 2, moves.length));
+    }
+}
+
+export function GetField() {
+    let fieldString = " ".repeat(81); // Initialize the global field string
+    let mark = "X"
+    for (let i = 0; i < moves.length; i += 2) {
+        const index = StringToIndex(moves.substring(i, i + 2))
+        fieldString = fieldString.substring(0, index) + mark + fieldString.substring(index + 1);
+        mark = mark === "X" ? "O" : "X";
+    }
+    return fieldString;
+}
 
 export function start() {
-    update_field(fieldString, currentPlayer, lastMove);
+    update_field(moves, currentPlayer, getLastMove(), false);
 }
 
 export function calcDeadArea() {
+    const fieldString = GetField()
     let ans = ""
     for (let rowStart = 0; rowStart <= 6; rowStart += 3) {
         for (let colStart = 0; colStart <= 6; colStart += 3) {
@@ -52,16 +73,16 @@ export function calcDeadArea() {
 }
 
 export function getAvailableMoves() {
+    const fieldString = GetField()
     let ans = Array(81).fill(false);
-    if (lastMove === -1) {
+    if (getLastMove() === -1) {
         ans.fill(true);
         return ans;
     }
 
-    let deadArea = calcDeadArea();
-    let wantRow = Math.floor(lastMove / 9) % 3;
-    let wantCol = lastMove % 3;
-    console.log(lastMove, wantRow, wantCol);
+    let deadArea = calcDeadArea(fieldString);
+    let wantRow = Math.floor(getLastMove() / 9) % 3;
+    let wantCol = getLastMove() % 3;
     if (deadArea[wantRow * 3 + wantCol] !== " ") {
         for (let row = 0; row < 9; row++) {
             for (let col = 0; col < 9; col++) {
@@ -79,16 +100,25 @@ export function getAvailableMoves() {
             }
         }
     }
-    console.log(ans);
     return ans
 }
 
 export function place(row, col) {
     const index = row * 9 + col;
-    if (getAvailableMoves()[index]) {
-        fieldString = fieldString.substring(0, index) + currentPlayer + fieldString.substring(index + 1);
-        lastMove = index;
-        currentPlayer = currentPlayer === "X" ? "O" : "X";
-        update_field(fieldString, currentPlayer, lastMove);
+    if (!getAvailableMoves()[index]) {
+        return
     }
+    currentPlayer = currentPlayer === "X" ? "O" : "X";
+    moves += IndexToString(index)
+    update_field(moves, currentPlayer, getLastMove(), true);
+
+    getMoveFromServer().then(move => {
+        console.log(move)
+        if (move === "") {
+            alert("Server error")
+        }
+        moves += move
+        currentPlayer = currentPlayer === "X" ? "O" : "X";
+        update_field(moves, currentPlayer, getLastMove(), false);
+    })
 }

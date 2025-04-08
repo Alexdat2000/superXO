@@ -1,6 +1,9 @@
 #include <iostream>
 
+#include "board.hpp"
+#include "board_fast.hpp"
+
 int main() {
-    std::cout << "Hello, World!" << std::endl;
-    return 0;
+
+  return 0;
 }

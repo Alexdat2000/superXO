@@ -1,194 +1,111 @@
-#ifndef BOARD_HPP
-#define BOARD_HPP
+#ifndef BOARD_FAST_HPP
+#define BOARD_FAST_HPP
 
 #include <bits/stdc++.h>
 
 using namespace std;
 
-enum Mark {
-    EMPTY,
-    X,
-    O,
-};
+using num = uint32_t;
 
-const std::vector<std::vector<int> > gameRows = {
-    {0, 1, 2},
-    {3, 4, 5},
-    {6, 7, 8},
-    {0, 3, 6},
-    {1, 4, 7},
-    {2, 5, 8},
-    {0, 4, 8},
-    {2, 4, 6}
-};
+const vector<array<size_t, 3>> gameRows = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8},
+                                           {0, 3, 6}, {1, 4, 7}, {2, 5, 8},
+                                           {0, 4, 8}, {2, 4, 6}};
 
-
-struct Coord {
-    int row;
-    int col;
-    int index;
-    std::string str;
-
-    explicit Coord(const int index): index(index) {
-        row = index / 9;
-        col = index % 9;
-        str = std::string(1, 'A' + col) + std::string(1, '1' + row);
-    }
-
-    explicit Coord(const int row, const int col): row(row), col(col) {
-        index = row * 9 + col;
-        str = std::string(1, 'A' + col) + std::string(1, '1' + row);
-    }
-
-    explicit Coord(std::string str): str(str) {
-        index = str[0] - 'A' + (str[1] - '1') * 9;
-        row = index / 9;
-        col = index % 9;
-    }
-
-    [[nodiscard]] int inSubBoard() const {
-        return (row / 3) * 3 + (col / 3);
-    }
-
-    [[nodiscard]] int toSubBoard() const {
-        return row % 3 * 3 + col % 3;
-    }
-
-    [[nodiscard]] int toSubBoardRow() const {
-        return row % 3;
-    }
-
-    [[nodiscard]] int toSubBoardCol() const {
-        return col % 3;
-    }
-};
-
+inline num getMark(num board, size_t cell) {
+  return (board >> (2 * cell)) & 3;
+}
 
 class Board {
-public:
-    explicit Board(const std::string &moves)
-        : moves(moves) {
-        currentPlayer = (moves.length() % 4 == 0) ? "X" : "O";
-        calculateBoard();
-        calculateSubBoards();
-        calculateWinner();
-        calculateAvailableMoves();
+ public:
+  explicit Board(const std::string& moves) : moves(moves) {
+    boardState = array<num, 9>();
+    for (size_t i = 0; i < moves.length(); i += 2) {
+      string move = moves.substr(i, 2);
+      int index = (move[1] - '1') * 9 + (move[0] - 'A');
+      Place(index / 9, index % 9);
     }
+  }
 
-private:
-    void calculateBoard() {
-        board = std::string(81, ' ');
-        std::string mark = "X";
-        for (size_t i = 0; i < moves.length(); i += 2) {
-            Coord coord = Coord(moves.substr(i, 2));
-            board[coord.index] = mark[0];
-            mark = (mark == "X") ? "O" : "X";
+ private:
+  num calcSubWinner(num sub_board) {
+    num local = 0;
+    for (const auto& [a, b, c] : gameRows) {
+      if (getMark(sub_board, a) != 0 &&
+          getMark(sub_board, a) == getMark(sub_board, b) &&
+          getMark(sub_board, a) == getMark(sub_board, c)) {
+        local = getMark(sub_board, a);
+      }
+    }
+    if (local == 0) {
+      bool filled = true;
+      for (size_t i = 0; i < 9; i++) {
+        if (getMark(sub_board, i) == 0) {
+          filled = false;
+          break;
         }
+      }
+      if (filled) {
+        local = 3;
+      }
+    }
+    return local;
+  }
+
+  vector<size_t> calculateAvailableMoves() {
+    vector<size_t> available;
+    if (moves.empty()) {
+      available.resize(81);
+      iota(available.begin(), available.end(), 0u);
+      return available;
     }
 
-    void calculateSubBoards() {
-        subBoards = std::string(9, ' ');
-        for (int rowStart = 0; rowStart <= 6; rowStart += 3) {
-            for (int colStart = 0; colStart <= 6; colStart += 3) {
-                std::vector<char> square;
-                for (int i = 0; i < 3; i++) {
-                    for (int j = 0; j < 3; j++) {
-                        int index = (rowStart + i) * 9 + (colStart + j);
-                        square.push_back(board[index]);
-                    }
-                }
-
-                char winner = ' ';
-                for (const auto &row: gameRows) {
-                    if (row[0] < 9 && row[1] < 9 && row[2] < 9) {
-                        if (square[row[0]] != ' ' && square[row[0]] == square[row[1]] && square[row[0]] == square[row[
-                                2]]) {
-                            winner = square[row[0]];
-                        }
-                    }
-                }
-                if (winner == ' ' && std::all_of(square.begin(), square.end(), [](char mark) { return mark != ' '; })) {
-                    winner = 'D';
-                }
-                subBoards[(rowStart / 3) * 3 + (colStart / 3)] = winner;
-            }
+    int tarSubBoard = ((last_move / 9) % 3) * 3 + last_move % 3;
+    if (getMark(subWinners, tarSubBoard)) {
+      for (size_t row = 0; row < 9; row++) {
+        for (size_t col = 0; col < 9; col++) {
+          size_t board = row / 3 * 3 + col / 3;
+          size_t in_board = row % 3 * 3 + col % 3;
+          if (getMark(boardState[board], in_board) == 0 &&
+              getMark(subWinners, board) == 0) {
+            available.push_back(row * 9 + col);
+          }
         }
-    }
-
-    void calculateWinner() {
-        winner = ' ';
-        for (const auto &row: gameRows) {
-            if (subBoards[row[0]] != ' ' && subBoards[row[1]] != 'D' && subBoards[row[0]] == subBoards[row[1]] &&
-                subBoards[row[0]] == subBoards[row[2]]) {
-                winner = subBoards[row[0]];
-            }
+      }
+    } else {
+      size_t tar_board = last_move % 3 * 3 + last_move % 3;
+      for (size_t row = 0; row < 3; row++) {
+        for (size_t col = 0; col < 3; col++) {
+          if (getMark(boardState[tar_board], row * 3 + col) == 0) {
+            available.push_back((tar_board / 3 * 3 + row) * 9 +
+                                (tar_board % 3 * 3 + col));
+          }
         }
-        if (winner == ' ' && std::all_of(subBoards.begin(), subBoards.end(), [](char mark) { return mark != ' '; })) {
-            winner = 'D';
-        }
+      }
     }
+  }
 
-    void calculateAvailableMoves() {
-        availableMoves = std::vector<bool>(81, false);
-        if (moves.empty()) {
-            availableMoves = std::vector<bool>(81, true);
-            return;
-        }
+ public:
+  void Place(int row, int col) {
+    size_t sub_board = row / 3 * 3 + col / 3;
+    size_t inside = row % 3 * 3 + col % 3;
+    boardState[sub_board] += (currentPlayer << (1 << (inside * 2)));
+    currentPlayer = 3 - currentPlayer;
+    num subboard_winner = calcSubWinner(boardState[sub_board]);
+    subWinners = (subWinners & (3 << (2 * sub_board))) |
+                 (subboard_winner << (2 * sub_board));
+    winner = calcSubWinner(subWinners);
+    last_move = row * 9 + col;
+  }
 
-        const Coord lastMove = *GetLastMove();
-        int tarSubBoard = lastMove.toSubBoard();
-        if (subBoards[tarSubBoard] != ' ') {
-            for (int row = 0; row < 9; row++) {
-                for (int col = 0; col < 9; col++) {
-                    Coord coord = Coord(row, col);
-                    if (board[coord.index] == ' ' && subBoards[coord.inSubBoard()] == ' ') {
-                        availableMoves[coord.index] = true;
-                    }
-                }
-            }
-        } else {
-            const auto edge = Coord((lastMove.row % 3) * 3, (lastMove.col % 3) * 3);
-            for (int row = edge.row; row < edge.row + 3; row++) {
-                for (int col = edge.col; col < edge.col + 3; col++) {
-                    const auto coord = Coord(row, col);
-                    if (board[coord.index] == ' ') {
-                        availableMoves[coord.index] = true;
-                    }
-                }
-            }
-        }
-    }
+  [[nodiscard]] bool HasWinner() const { return winner != 0; }
 
-public:
-    void Place(const Coord &coord) {
-        moves += coord.str;
-        board[coord.index] = currentPlayer[0];
-        currentPlayer = (currentPlayer == "X") ? "O" : "X";
-
-        calculateSubBoards();
-        calculateWinner();
-        calculateAvailableMoves();
-    }
-
-    [[nodiscard]] std::optional<Coord> GetLastMove() const {
-        if (moves.empty()) {
-            return std::nullopt;
-        } else {
-            return Coord(moves.substr(moves.length() - 2));
-        }
-    }
-
-    [[nodiscard]] bool HasWinner() const {
-        return winner != ' ';
-    }
-
-private:
-    std::string moves;
-    std::string currentPlayer;
-    std::string board;
-    std::string subBoards;
-    char winner = ' ';
-    std::vector<bool> availableMoves;
+ private:
+  std::string moves;
+  num currentPlayer = 1;
+  std::array<num, 9> boardState;
+  num subWinners = 0;
+  num winner = 0;
+  size_t last_move;
 };
 
-#endif //BOARD_HPP
+#endif  // BOARD_FAST_HPP

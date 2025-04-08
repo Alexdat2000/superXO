@@ -1,3 +1,9 @@
-//
-// Created by user on 4/8/25.
-//
+// Implementation of simple Monte-Carlo Tree Search
+
+#include <string>
+
+#include "board.hpp"
+
+std::string GetBestMove(Board board, size_t tries) {
+
+}

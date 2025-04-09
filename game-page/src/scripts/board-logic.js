@@ -14,7 +14,7 @@ const gameRows = [
     [1, 4, 7],
     [2, 5, 8],
     [0, 4, 8],
-    [2, 6, 6],
+    [2, 4, 6],
 ]
 
 export class Board {

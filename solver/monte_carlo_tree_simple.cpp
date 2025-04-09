@@ -33,7 +33,7 @@ std::string GetBestMove(BoardFast board, size_t tries) {
     if (stats[i][0] + stats[i][1] + stats[i][2] == 0) {
       continue;
     }
-    double ratio = stats[board.CurrentPlayer() - 1][0] / (stats[i][0] + stats[i][1] + stats[i][2]);
+    double ratio = stats[i][board.CurrentPlayer() - 1] / (stats[i][0] + stats[i][1] + stats[i][2]);
     if (ratio > best_ratio) {
       best = i;
       best_ratio = ratio;

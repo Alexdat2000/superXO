@@ -10,6 +10,7 @@ import {CoordinatesToCoord, IndexToCoord, StringToCoord} from "./coord";
  * @param {Board} state - The name to greet.
  */
 export function UpdateBoard(state) {
+    console.log(state);
     const chessboard = document.getElementById("chessboard");
     chessboard.innerHTML = "";
     for (let row = 0; row < 9; row++) {

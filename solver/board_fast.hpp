@@ -97,6 +97,8 @@ class BoardFast {
 
   [[nodiscard]] uint32_t Winner() const { return winner; }
 
+  [[nodiscard]] uint32_t CurrentPlayer() const { return currentPlayer; }
+
  private:
   uint32_t currentPlayer = 1;
   std::array<uint32_t, 9> boardState;

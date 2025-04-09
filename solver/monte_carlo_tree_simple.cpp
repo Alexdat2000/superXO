@@ -29,15 +29,18 @@ std::string GetBestMove(BoardFast board, size_t tries) {
   size_t best = move;
   double best_ratio =
       stats[move][board.CurrentPlayer() - 1] / (stats[move][0] + stats[move][1] + stats[move][2]);
+  cout << "Stats:" << endl;
   for (size_t i = 0; i < options.size(); i++) {
     if (stats[i][0] + stats[i][1] + stats[i][2] == 0) {
       continue;
     }
     double ratio = stats[i][board.CurrentPlayer() - 1] / (stats[i][0] + stats[i][1] + stats[i][2]);
+    cout << options[i] << " " << stats[i][0] << " " << stats[i][1] << " " << stats[i][2] << endl;
     if (ratio > best_ratio) {
       best = i;
       best_ratio = ratio;
     }
   }
+  cout << endl;
   return string(1, options[best] % 9 + 'A') + string(1, options[best] / 9 + '1');
 }

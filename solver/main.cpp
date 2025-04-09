@@ -14,7 +14,7 @@ int main() {
         const char* paramValue = req.url_params.get("moves");
         std::string moves = (paramValue != nullptr) ? paramValue : "";
         auto b = BoardFast(moves);
-      return GetBestMove(b, 100'000);
+      return GetBestMove(b, 10'000);
       });
 
   app.port(18080).multithreaded().run();

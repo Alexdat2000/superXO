@@ -30,3 +30,9 @@ services:
     command: ["--port", ":8080"]
     ports:
         - "2052:8080"
+  
+  solver:
+    build:
+        context: solver
+    ports:
+        - "18080:18080"

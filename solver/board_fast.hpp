@@ -5,20 +5,18 @@
 
 using namespace std;
 
-using num = uint32_t;
-
 const vector<array<size_t, 3>> gameRows2 = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8},
-                                           {0, 3, 6}, {1, 4, 7}, {2, 5, 8},
-                                           {0, 4, 8}, {2, 4, 6}};
+                                            {0, 3, 6}, {1, 4, 7}, {2, 5, 8},
+                                            {0, 4, 8}, {2, 4, 6}};
 
-inline num getMark(num board, size_t cell) {
+inline uint32_t getMark(uint32_t board, size_t cell) {
   return (board >> (2 * cell)) & 3;
 }
 
 class BoardFast {
  public:
   explicit BoardFast(const std::string& moves) {
-    boardState = array<num, 9>();
+    boardState = array<uint32_t, 9>();
     for (size_t i = 0; i < moves.length(); i += 2) {
       string move = moves.substr(i, 2);
       int index = (move[1] - '1') * 9 + (move[0] - 'A');
@@ -27,8 +25,8 @@ class BoardFast {
   }
 
  private:
-  num calcSubWinner(num sub_board) {
-    num local = 0;
+  uint32_t calcSubWinner(uint32_t sub_board) {
+    uint32_t local = 0;
     for (const auto& [a, b, c] : gameRows2) {
       if (getMark(sub_board, a) != 0 &&
           getMark(sub_board, a) == getMark(sub_board, b) &&
@@ -85,25 +83,25 @@ class BoardFast {
     return available;
   }
 
-  void Place(int row, int col) {
+  void Place(size_t row, size_t col) {
     size_t sub_board = row / 3 * 3 + col / 3;
     size_t inside = row % 3 * 3 + col % 3;
     boardState[sub_board] += (currentPlayer << (inside * 2));
     currentPlayer = 3 - currentPlayer;
-    num subboard_winner = calcSubWinner(boardState[sub_board]);
+    uint32_t subboard_winner = calcSubWinner(boardState[sub_board]);
     subWinners = (subWinners & (~(3 << (2 * sub_board)))) |
                  (subboard_winner << (2 * sub_board));
     winner = calcSubWinner(subWinners);
     last_move = row * 9 + col;
   }
 
-  [[nodiscard]] bool HasWinner() const { return winner != 0; }
+  [[nodiscard]] uint32_t Winner() const { return winner; }
 
  private:
-  num currentPlayer = 1;
-  std::array<num, 9> boardState;
-  num subWinners = 0;
-  num winner = 0;
+  uint32_t currentPlayer = 1;
+  std::array<uint32_t, 9> boardState;
+  uint32_t subWinners = 0;
+  uint32_t winner = 0;
   size_t last_move = -1;
 };
 

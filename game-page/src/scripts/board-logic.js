@@ -44,6 +44,9 @@ export class Board {
 
     calculateAvailableMoves() {
         this.availableMoves = Array(81).fill(false);
+        if (this.winner != " ") {
+            return
+        }
         if (this.GetLastMove() === null) {
             this.availableMoves.fill(true);
             return

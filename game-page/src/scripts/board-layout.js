@@ -56,10 +56,11 @@ export function UpdateBoard(state) {
             image.src = circle;
             image.alt = "Circle";
         }
-        cell.appendChild(image);
         if (state.GetLastMove() !== null && i === state.GetLastMove().index) {
             cell.classList.add("last-move");
+            image.classList.add("last-placed");
         }
+        cell.appendChild(image);
     }
 
     // color dead areas

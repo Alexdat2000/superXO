@@ -23,6 +23,25 @@
     position: relative;
 }
 
+@keyframes pop-in {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    80% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.last-placed {
+    animation: pop-in 0.2s ease;
+}
+
 .last-move {
     background-color: #CDE5D3;
 }

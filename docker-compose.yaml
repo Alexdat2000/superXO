@@ -31,8 +31,23 @@ services:
     ports:
         - "2052:8080"
   
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./middleware/init-db:/docker-entrypoint-initdb.d
+
   solver:
     build:
         context: solver
     ports:
         - "18080:18080"
+
+volumes:
+  db-data:

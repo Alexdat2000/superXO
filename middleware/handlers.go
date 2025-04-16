@@ -5,17 +5,19 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+
+	boardApi "github.com/Alexdat2000/superXO/middleware/board"
 )
 
 func handleCalculate(w http.ResponseWriter, r *http.Request) {
 	pastMoves := r.URL.Query().Get("moves")
-	board, err := ParseBoard(pastMoves)
+	board, err := boardApi.ParseBoard(pastMoves)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = fmt.Fprintf(w, "Invalid moves: %v", pastMoves)
 		return
 	}
-	newMoves, err := GetValidMoves(board, pastMoves[max(0, len(pastMoves)-2):])
+	newMoves, err := boardApi.GetValidMoves(board, pastMoves[max(0, len(pastMoves)-2):])
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Printf("Error getting valid moves: %v", err)
@@ -25,7 +27,7 @@ func handleCalculate(w http.ResponseWriter, r *http.Request) {
 	var moves []string
 	for idx, move := range newMoves {
 		if move {
-			moves = append(moves, IndexToString(idx))
+			moves = append(moves, boardApi.IndexToString(idx))
 		}
 	}
 	if len(moves) == 0 {

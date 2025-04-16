@@ -7,6 +7,8 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+
+	gamesApi "github.com/Alexdat2000/superXO/middleware/games"
 )
 
 func main() {
@@ -20,6 +22,10 @@ func main() {
 	}).Handler(router)
 
 	router.HandleFunc("/calculate", handleCalculate)
+	router.HandleFunc("/getGame", gamesApi.HandleGetGame)
+	router.HandleFunc("/newGame", gamesApi.HandleNewGame)
+
+	gamesApi.InitDB()
 
 	log.Printf("Listening on %s", *listen)
 	err := http.ListenAndServe(*listen, handler)

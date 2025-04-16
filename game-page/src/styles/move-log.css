@@ -30,8 +30,8 @@ table.move-log {
 }
 
 .log-cell {
-    width: 30px;
-    height: 30px;
+    width: min(30px, calc((100vh - 70px) / 10));
+    height: min(30px, calc((100vh - 70px) / 10));;
 }
 
 .log-title {

@@ -158,6 +158,10 @@ export function Place(coord) {
         return
     }
     state.Place(coord)
+    if (window.location.pathname === "/local") {
+        UpdateBoard(state);
+        return
+    }
     state.DenyMove()
     if (state.HasWinner()) {
         UpdateBoard(state);

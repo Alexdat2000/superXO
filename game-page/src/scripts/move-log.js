@@ -26,7 +26,7 @@ export function UpdateMoveLog(log) {
     let len = Math.min(10, Math.floor(log.length / 2))
     for (let i = 0; i < len; i++) {
         let move = log.slice(log.length - len * 2 + i * 2, log.length - len * 2 + i * 2 + 2);
-        if (i % 2 === 0) {
+        if ((Math.floor(log.length / 2) - len + i) % 2 === 0) {
             let cell = row1.getElementsByTagName('td')[i + 1];
             cell.textContent = move;
         } else {

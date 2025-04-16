@@ -3,6 +3,7 @@ package games
 import (
 	"math/rand"
 	"time"
+	"unicode"
 )
 
 const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
@@ -15,4 +16,16 @@ func generateRandomString(length int) string {
 		b[i] = charset[seededRand.Intn(len(charset))]
 	}
 	return string(b)
+}
+
+func validateId(id string) bool {
+	if len(id) != 10 {
+		return false
+	}
+	for _, r := range id {
+		if !unicode.IsLetter(r) && !unicode.IsDigit(r) {
+			return false
+		}
+	}
+	return true
 }

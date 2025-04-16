@@ -30,22 +30,32 @@ services:
     command: ["--port", ":8080"]
     ports:
         - "2052:8080"
-  
+    environment:
+          DB_HOST: db
+          DB_PORT: 5432
+          DB_USER: ${DB_USER:-postgres}
+          DB_PASSWORD: ${DB_PASSWORD:-postgres}
+          DB_NAME: ${DB_NAME:-games}
+          DB_SSL_MODE: disable
+    depends_on:
+      db:
+        condition: service_healthy
+
   db:
     image: postgres:15-alpine
     restart: always
     environment:
-      POSTGRES_USER: ${DB_USER:-postgres}F
+      POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
-      POSTGRES_DB: ${DB_NAME:-users}
-      PGDATA: /var/lib/postgresql/data/pgdata_users
+      POSTGRES_DB: ${DB_NAME:-games}
+      PGDATA: /var/lib/postgresql/data/pgdata_games
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./middleware/init-db:/docker-entrypoint-initdb.d
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d users" ]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d games" ]
       interval: 10s
       timeout: 5s
       retries: 3

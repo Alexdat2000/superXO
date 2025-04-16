@@ -5,12 +5,15 @@ import moveBlue from "../assets/move-blue.svg"
 
 import {Place} from "./board-logic";
 import {CoordinatesToCoord, IndexToCoord, StringToCoord} from "./coord";
+import {UpdateMoveLog} from "./move-log";
 
 /**
  * @param {Board} state - The name to greet.
  */
 export function UpdateBoard(state) {
     console.log(state);
+    UpdateMoveLog(state.moves)
+
     const chessboard = document.getElementById("chessboard");
     chessboard.innerHTML = "";
     for (let row = 0; row < 9; row++) {

@@ -1,0 +1,48 @@
+.move-log {
+    border-collapse: collapse;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    background-color: #222;
+    color: #ddd;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0;
+}
+
+table.move-log {
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid #444;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.move-log th, .move-log td {
+    border: 1px solid #444;
+    text-align: center;
+}
+
+.move-log th {
+    background-color: #262421;
+}
+
+.log-cell {
+    width: 30px;
+    height: 30px;
+}
+
+.log-title {
+    width: 70px;
+    background-color: #36332f;
+}
+
+.log-player1 {
+    color: #ff5d00
+}
+
+.log-player2 {
+    color: #0065ff;
+}

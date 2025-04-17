@@ -1,7 +1,10 @@
-FROM node:23-alpine AS builder
+FROM node:23-alpine
 
-WORKDIR /game-page
+WORKDIR /app/game-page
+
 COPY package*.json ./
 RUN npm install
+
 COPY . .
-RUN npm run build
+
+CMD ["npm", "run", "build"]

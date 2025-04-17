@@ -5,12 +5,13 @@ import "../styles/move-log.css"
 import { EnsureUserId } from "./cookie"
 import { StartLocalGame } from "./local-game"
 import { StartRemoteGame } from "./remote-game"
+import { GetParameterByName } from "./utils"
 
 window.onload = function () {
     EnsureUserId()
-    if (window.location.pathname.startsWith("/local")) {
+    if (GetParameterByName("id") === null) {
         StartLocalGame()
     } else {
-        StartRemoteGame()
+        StartRemoteGame(GetParameterByName("id"))
     }
 }

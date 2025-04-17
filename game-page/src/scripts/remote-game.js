@@ -32,7 +32,7 @@ class RemoteBoard extends Board {
     }
 }
 
-export function StartRemoteGame() {
+export function StartRemoteGame(gameId) {
     let state = new RemoteBoard("", true)
     UpdateBoard(state);
 }

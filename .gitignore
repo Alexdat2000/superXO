@@ -2,3 +2,5 @@
 *build
 *.vscode
 *cmake-build-debug*
+*dist
+*node_modules

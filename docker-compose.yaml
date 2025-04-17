@@ -1,31 +1,40 @@
 services:
+  title-page:
+    build:
+      context: ./title-page
+      dockerfile: Dockerfile
+    volumes:
+      - ./title-page:/title-page
+      - /title-page/node_modules
+    environment:
+      - NODE_ENV=production
+
   game-page:
     build:
-      context: game-page
+      context: ./game-page
       dockerfile: Dockerfile
-    command: npm run build
     volumes:
-      - ./game-page:/app/game-page
-      - /app/game-page/node_modules
+      - ./game-page:/game-page
+      - /game-page/node_modules
     environment:
       - NODE_ENV=production
 
   middleware:
     build:
-        context: middleware
-    command: ["--port", ":8080"]
+      context: middleware
+    command: [ "--port", ":8080" ]
     ports:
-        - "127.0.0.1:2052:8080"
+      - "127.0.0.1:2052:8080"
     restart: always
     environment:
-          DB_HOST: db
-          DB_PORT: 5432
-          DB_USER: ${DB_USER:-postgres}
-          DB_PASSWORD: ${DB_PASSWORD:-postgres}
-          DB_NAME: ${DB_NAME:-games}
-          DB_SSL_MODE: disable
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-games}
+      DB_SSL_MODE: disable
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/health"]
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:8080/health" ]
       interval: 30s
       timeout: 1s
       retries: 10
@@ -57,7 +66,7 @@ services:
       - "127.0.0.1:18080:18080"
     restart: always
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:18080/health"]
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:18080/health" ]
       interval: 30s
       timeout: 1s
       retries: 10
@@ -69,12 +78,15 @@ services:
       - "443:443"
     restart: always
     volumes:
-      - ./game-page/dist:/usr/share/nginx/html
+      - ./title-page/dist:/usr/share/nginx/html
+      - ./game-page/dist:/usr/share/nginx/html/game
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - /etc/letsencrypt/live/superxo.fun/fullchain.pem:/etc/letsencrypt/live/superxo.fun/fullchain.pem
       - /etc/letsencrypt/live/superxo.fun/privkey.pem:/etc/letsencrypt/live/superxo.fun/privkey.pem
     depends_on:
       game-page:
+        condition: service_completed_successfully
+      title-page:
         condition: service_completed_successfully
       middleware:
         condition: service_healthy

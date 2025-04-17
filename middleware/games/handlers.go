@@ -25,11 +25,12 @@ func HandleGetGame(w http.ResponseWriter, r *http.Request) {
 		returnError(w, http.StatusBadRequest, "Invalid game id")
 		return
 	}
-	playerId := r.URL.Query().Get("player_id")
-	if !validateId(playerId) {
+	playerIdCookie, err := r.Cookie("player_id")
+	if err != nil || !validateId(playerIdCookie.Value) {
 		returnError(w, http.StatusBadRequest, "Invalid player id")
 		return
 	}
+	playerId := playerIdCookie.Value
 
 	game, status, err := getGame(gameId, playerId)
 	if errors.Is(err, GameNotFoundError) {
@@ -43,13 +44,15 @@ func HandleGetGame(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleNewGame(w http.ResponseWriter, r *http.Request) {
-	playerId := r.URL.Query().Get("player_id")
-	if playerId == "" {
-		returnError(w, http.StatusBadRequest, "No player id provided")
+	playerIdCookie, err := r.Cookie("player_id")
+	if err != nil || !validateId(playerIdCookie.Value) {
+		returnError(w, http.StatusBadRequest, "Invalid player id")
 		return
 	}
+	playerId := playerIdCookie.Value
+
 	id := generateRandomString(10)
-	err := createGame(id, playerId)
+	err = createGame(id, playerId)
 	if err != nil {
 		returnError(w, http.StatusInternalServerError, "Error creating game: "+err.Error())
 		return
@@ -63,18 +66,19 @@ func HandlePlace(w http.ResponseWriter, r *http.Request) {
 		returnError(w, http.StatusBadRequest, "Invalid game id")
 		return
 	}
-	playerId := r.URL.Query().Get("player_id")
-	if !validateId(playerId) {
-		returnError(w, http.StatusBadRequest, "Invalid player id")
-		return
-	}
 	move := r.URL.Query().Get("move")
 	if !('A' <= move[0] && move[0] <= 'I' && '1' <= move[1] && move[1] <= '9') {
 		returnError(w, http.StatusBadRequest, "Move to non-existing cell")
 		return
 	}
+	playerIdCookie, err := r.Cookie("player_id")
+	if err != nil || !validateId(playerIdCookie.Value) {
+		returnError(w, http.StatusBadRequest, "Invalid player id")
+		return
+	}
+	playerId := playerIdCookie.Value
 
-	err := place(gameId, playerId, move)
+	err = place(gameId, playerId, move)
 	if errors.Is(err, GameNotFoundError) {
 		returnError(w, http.StatusNotFound, "Game not found")
 	} else if errors.Is(err, NoAccessToPlaceError) {

@@ -78,11 +78,11 @@ export function UpdateBoard(state) {
         }
     }
 
-    if (state.gameState === "init" || state.gameState === "server") {
-        document.getElementById('chessboard').style.filter = 'brightness(0.9)';
+    if (state.gameState === "spectator" || state.HasWinner()) {
         return;
     }
-    if (state.gameState === "spectator" || state.HasWinner()) {
+    if (state.gameState === "init" || state.gameState === "server") {
+        document.getElementById('chessboard').style.filter = 'brightness(0.9)';
         return;
     }
 

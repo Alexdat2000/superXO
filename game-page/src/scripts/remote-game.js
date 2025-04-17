@@ -28,13 +28,13 @@ export function StartRemoteGame(gameId) {
 
 function gameInitiationLoop() {
     GetGameFromServer(state.gameId).then(game => {
-        console.log(game)
         if (game["game_initiated"] === false) {
             setTimeout(gameInitiationLoop, 300);
             return
         }
         state.Extend(game["moves"]);
         if (game["game_status"] === "spectator") {
+            state.gameState = "spectator";
             spectatorLoop();
         } else if (game["game_status"] === "player1") {
             if (state.moves.length % 4 === 0) {
@@ -43,7 +43,9 @@ function gameInitiationLoop() {
             } else {
                 state.gameState = "server";
                 UpdateBoard(state);
-                waitForMoveLoop();
+                if (!state.HasWinner()) {
+                    waitForMoveLoop();
+                }
             }
         } else if (game["game_status"] === "player2") {
             if (state.moves.length % 4 === 2) {
@@ -52,7 +54,9 @@ function gameInitiationLoop() {
             } else {
                 state.gameState = "server";
                 UpdateBoard(state);
-                waitForMoveLoop();
+                if (!state.HasWinner()) {
+                    waitForMoveLoop();
+                }
             }
         } else {
             alert("Unknown game status: " + game["game_status"]);
@@ -62,17 +66,18 @@ function gameInitiationLoop() {
 
 function spectatorLoop() {
     GetGameFromServer(state.gameId).then(game => {
-        console.log(game)
-        state.Extend(game["moves"]);
-        state.gameState = "spectator";
-        UpdateBoard(state);
-        setTimeout(spectatorLoop, 300);
+        if (game["moves"].length >= state.moves.length + 2) {
+            state.Extend(game["moves"]);
+            UpdateBoard(state);
+        }
+        if (!state.HasWinner()) {
+            setTimeout(spectatorLoop, 300);
+        }
     })
 }
 
 function waitForMoveLoop() {
     GetGameFromServer(state.gameId).then(game => {
-        console.log(game)
         if (game["moves"].length < state.moves.length + 2) {
             setTimeout(waitForMoveLoop, 300);
             return

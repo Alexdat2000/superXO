@@ -26,38 +26,37 @@ main {
   min-height: 100vh;
 }
 
-.container {
+.main-menu {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  min-height: 100vh;
 }
 
-.menu-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-  background: rgba(32, 34, 37, 0.95);
-  padding: 40px 30px;
-  border-radius: 18px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+.menu-row-title {
+  font-size: 20px;
+  margin-top: 20px;
+  margin-bottom: 10px;
 }
 
-.menu-btn {
-  font-size: 1.3rem;
-  padding: 20px 0;
-  background: #222;
-  color: #ffcc00;
+.buttons-row {
+  display: flex;
+  gap: 10px;
+}
+
+.menu-button {
+  background-color: #333;
+  color: #fff;
+  padding: 15px 30px;
   border: none;
   border-radius: 10px;
+  font-size: 20px;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-}
-
-.menu-btn:hover, .menu-btn:focus {
-  background: #444;
-  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  height: 80px;
 }
 
 footer {

@@ -24,15 +24,12 @@ services:
           DB_PASSWORD: ${DB_PASSWORD:-postgres}
           DB_NAME: ${DB_NAME:-games}
           DB_SSL_MODE: disable
-    depends_on:
-      db:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/health"]
       interval: 30s
       timeout: 1s
       retries: 10
-      start_period: 10s
+      start_period: 3s
 
   db:
     image: postgres:15-alpine
@@ -64,7 +61,7 @@ services:
       interval: 30s
       timeout: 1s
       retries: 10
-      start_period: 10s
+      start_period: 1s
 
   nginx:
     image: nginx:alpine

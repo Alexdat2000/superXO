@@ -48,6 +48,8 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
       POSTGRES_DB: ${DB_NAME:-games}
       PGDATA: /var/lib/postgresql/data/pgdata_games
+    ports:
+      - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./middleware/init-db:/docker-entrypoint-initdb.d

@@ -25,7 +25,7 @@ func HandleGetGame(w http.ResponseWriter, r *http.Request) {
 		returnError(w, http.StatusBadRequest, "Invalid game id")
 		return
 	}
-	playerIdCookie, err := r.Cookie("player_id")
+	playerIdCookie, err := r.Cookie("userId")
 	if err != nil || !validateId(playerIdCookie.Value) {
 		returnError(w, http.StatusBadRequest, "Invalid player id")
 		return
@@ -44,7 +44,7 @@ func HandleGetGame(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleNewGame(w http.ResponseWriter, r *http.Request) {
-	playerIdCookie, err := r.Cookie("player_id")
+	playerIdCookie, err := r.Cookie("userId")
 	if err != nil || !validateId(playerIdCookie.Value) {
 		returnError(w, http.StatusBadRequest, "Invalid player id")
 		return
@@ -71,7 +71,7 @@ func HandlePlace(w http.ResponseWriter, r *http.Request) {
 		returnError(w, http.StatusBadRequest, "Move to non-existing cell")
 		return
 	}
-	playerIdCookie, err := r.Cookie("player_id")
+	playerIdCookie, err := r.Cookie("userId")
 	if err != nil || !validateId(playerIdCookie.Value) {
 		returnError(w, http.StatusBadRequest, "Invalid player id")
 		return

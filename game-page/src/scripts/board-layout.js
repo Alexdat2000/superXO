@@ -82,7 +82,7 @@ export function UpdateBoard(state) {
         document.getElementById('chessboard').style.filter = 'brightness(0.9)';
         return;
     }
-    if (state.gameState === "spectator") {
+    if (state.gameState === "spectator" || state.HasWinner()) {
         return;
     }
 

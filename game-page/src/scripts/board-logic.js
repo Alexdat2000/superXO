@@ -28,6 +28,19 @@ export class Board {
         this.calculateAvailableMoves()
     }
 
+    Extend(moves) {
+        if (!moves.startsWith(this.moves)) {
+            alert("Local and remote games are desynced");
+            return
+        }
+        this.moves = moves
+        this.currentPlayer = this.moves.length % 4 === 0 ? "X" : "O";
+        this.calculateBoard()
+        this.calculateSubBoards()
+        this.calculateWinner()
+        this.calculateAvailableMoves()
+    }
+
     // Internal calculations
     calculateBoard() {
         this.board = " ".repeat(81); // Initialize the global field string
@@ -123,14 +136,6 @@ export class Board {
         this.calculateSubBoards();
         this.calculateWinner();
         this.calculateAvailableMoves()
-    }
-
-    AllowMove() {
-        this.moveAvailable = true;
-    }
-
-    DenyMove() {
-        this.moveAvailable = false
     }
 
     // Helpers

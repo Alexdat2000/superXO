@@ -155,15 +155,16 @@ func place(gameId, playerId, move string) error {
 		return WrongTurnError
 	}
 
-	_, err = boardApi.ParseBoard(game.Moves + move)
+	err = boardApi.NewBoard(game.Moves).Place(boardApi.StringToCoord(move))
 	if err != nil {
+		println(game.Moves, move)
 		tx.Rollback()
 		return InvalidMoveError
 	}
 
 	queryUpdate := `
 		UPDATE games
-		SET moves = moves || $1
+		SET moves = moves || $1,
 		last_move = CURRENT_TIMESTAMP
 		WHERE id = $2
 	`

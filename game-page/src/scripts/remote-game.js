@@ -1,6 +1,8 @@
 import { Board } from "./board-logic";
 import { UpdateBoard } from "./board-layout";
-import { GetGameFromServer } from "./server-connection";
+import { GetGameFromServer, SendMoveToServer } from "./server-connection";
+
+let state = null;
 
 class RemoteBoard extends Board {
     MakeMove(coord) {
@@ -10,30 +12,30 @@ class RemoteBoard extends Board {
         this.Place(coord)
         this.gameState = "server";
         UpdateBoard(this);
-        if (this.HasWinner()) {
-            return;
+        SendMoveToServer(this.gameId, coord.str);
+        if (!this.HasWinner()) {
+            waitForMoveLoop();
         }
-        SendMoveToServer(this.moves);
-        waitForMoveLoop();
     }
 }
 
 export function StartRemoteGame(gameId) {
-    let state = new RemoteBoard("");
+    state = new RemoteBoard("");
+    state.gameId = gameId;
     UpdateBoard(state);
     gameInitiationLoop(gameId);
 }
 
-function gameInitiationLoop(gameId) {
-    GetGameFromServer(gameId).then(game => {
+function gameInitiationLoop() {
+    GetGameFromServer(state.gameId).then(game => {
         console.log(game)
         if (game["game_initiated"] === false) {
-            setTimeout(gameInitiationLoop, 300, gameId);
+            setTimeout(gameInitiationLoop, 300);
             return
         }
-        let state = new RemoteBoard(game["moves"]);
+        state.Extend(game["moves"]);
         if (game["game_status"] === "spectator") {
-            spectatorLoop(gameId);
+            spectatorLoop();
         } else if (game["game_status"] === "player1") {
             if (state.moves.length % 4 === 0) {
                 state.gameState = "player";
@@ -58,24 +60,24 @@ function gameInitiationLoop(gameId) {
     })
 }
 
-function spectatorLoop(gameId) {
-    GetGameFromServer(gameId).then(game => {
+function spectatorLoop() {
+    GetGameFromServer(state.gameId).then(game => {
         console.log(game)
-        let state = new RemoteBoard(game["moves"]);
+        state.Extend(game["moves"]);
         state.gameState = "spectator";
         UpdateBoard(state);
-        setTimeout(spectatorLoop, 300, gameId);
+        setTimeout(spectatorLoop, 300);
     })
 }
 
 function waitForMoveLoop() {
-    GetGameFromServer(gameId).then(game => {
+    GetGameFromServer(state.gameId).then(game => {
         console.log(game)
         if (game["moves"].length < state.moves.length + 2) {
             setTimeout(waitForMoveLoop, 300);
             return
         }
-        let state = new RemoteBoard(game["moves"]);
+        state.Extend(game["moves"]);
         state.gameState = "player";
         UpdateBoard(state);
     })

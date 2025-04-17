@@ -11,3 +11,14 @@ export async function GetGameFromServer(gameId) {
         return "";
     }
 }
+
+export async function SendMoveToServer(gameId, move) {
+    try {
+        const response = await fetch('/api/place?id=' + gameId + "&move=" + move);;
+        if (!response.ok) {
+            alert(response.json()["error"]);
+        }
+    } catch (error) {
+        alert(error.message);
+    }
+}

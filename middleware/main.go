@@ -23,9 +23,10 @@ func main() {
 		w.Write([]byte("OK"))
 	})
 
-	router.HandleFunc("/calculate", handleCalculate)
+	// router.HandleFunc("/calculate", handleCalculate)
 	router.HandleFunc("/getGame", gamesApi.HandleGetGame)
 	router.HandleFunc("/newGame", gamesApi.HandleNewGame)
+	router.HandleFunc("/place", gamesApi.HandlePlace)
 
 	gamesApi.InitDB()
 

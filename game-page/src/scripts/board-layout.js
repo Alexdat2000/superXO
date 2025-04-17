@@ -3,13 +3,9 @@ import circle from "../assets/circle.svg"
 import moveOrange from "../assets/move-orange.svg"
 import moveBlue from "../assets/move-blue.svg"
 
-import {Place} from "./board-logic";
 import {CoordinatesToCoord, IndexToCoord, StringToCoord} from "./coord";
 import {UpdateMoveLog} from "./move-log";
 
-/**
- * @param {Board} state - The name to greet.
- */
 export function UpdateBoard(state) {
     console.log(state);
     UpdateMoveLog(state.moves)
@@ -105,7 +101,7 @@ export function UpdateBoard(state) {
     cells.forEach(cell => {
         if (!cell.classList.contains("dead-area")) {
             cell.addEventListener("click", () => {
-                Place(StringToCoord(cell.id.substring(5)));
+                state.MakeMove(StringToCoord(cell.id.substring(5)));
             });
         }
     });

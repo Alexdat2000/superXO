@@ -1,10 +1,7 @@
-import {UpdateBoard} from "./board-layout";
 import {
     CoordinatesToCoord,
     StringToCoord,
 } from "./coord";
-
-import {GetMoveFromServer} from "./server-connection";
 
 const gameRows = [
     [0, 1, 2],
@@ -148,40 +145,9 @@ export class Board {
     HasWinner() {
         return this.winner !== " ";
     }
-}
 
-let state = new Board("", true)
-
-export function Start() {
-    UpdateBoard(state);
-}
-
-export function Place(coord) {
-    if (!state.availableMoves[coord.index]) {
-        return
+    // Intrgration with game logic
+    MakeMove(coord) {
+        throw new Error("Shouldn't be used as a base class");
     }
-    state.Place(coord)
-    if (window.location.pathname === "/local") {
-        UpdateBoard(state);
-        return
-    }
-    state.DenyMove()
-    if (state.HasWinner()) {
-        UpdateBoard(state);
-        return;
-    }
-    UpdateBoard(state);
-
-    GetMoveFromServer(state.moves).then(move => {
-        if (move === "") {
-            alert("Server error")
-        }
-        state.Place(StringToCoord(move));
-        if (state.HasWinner()) {
-            UpdateBoard(state);
-            return;
-        }
-        state.AllowMove();
-        UpdateBoard(state);
-    })
 }

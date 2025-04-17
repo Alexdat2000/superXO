@@ -27,13 +27,13 @@ func getDBConnectionString() string {
 func InitDB() {
 	connStr := getDBConnectionString()
 
-	maxRetries := 5
+	maxRetries := 10
 	var err error
 	for i := 0; i < maxRetries; i++ {
 		DB, err = sql.Open("postgres", connStr)
 		if err != nil {
 			log.Printf("Failed to open DB connection: %v", err)
-			time.Sleep(time.Second * 3)
+			time.Sleep(time.Second)
 			continue
 		}
 
@@ -43,7 +43,7 @@ func InitDB() {
 		}
 
 		log.Printf("Failed to ping DB (attempt %d/%d): %v", i+1, maxRetries, err)
-		time.Sleep(time.Second * 3)
+		time.Sleep(time.Second)
 	}
 	if err != nil {
 		log.Fatalf("Failed to connect to the database after %d attempts: %v", maxRetries, err)

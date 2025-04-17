@@ -3,6 +3,7 @@ FROM ubuntu:latest
 
 # Install Boost
 RUN apt update && apt install -y build-essential libboost-all-dev
+RUN apt-get update && apt-get install -y wget
 
 # Copy the source code into the container
 COPY . /app/

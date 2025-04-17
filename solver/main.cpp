@@ -9,6 +9,11 @@
 int main() {
   crow::SimpleApp app;
 
+  CROW_ROUTE(app, "/health")
+  .methods(crow::HTTPMethod::GET)([]() {
+    return crow::response(200, "OK");
+  });
+
   CROW_ROUTE(app, "/calculate")
       .methods(crow::HTTPMethod::GET)([&](const crow::request& req) {
         const char* paramValue = req.url_params.get("moves");

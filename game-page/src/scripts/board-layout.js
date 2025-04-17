@@ -43,8 +43,11 @@ export function UpdateBoard(state) {
     for (let i = 0; i < cells.length; i++) {
         const cell = cells[i];
         const fieldValue = state.board[i];
-
+        if (fieldValue === " ") {
+            continue;
+        }
         const image = document.createElement("img");
+        image.classList.add("player-mark")
         if (fieldValue === "X") {
             image.src = cross;
             image.alt = "Cross";

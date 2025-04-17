@@ -1,14 +1,13 @@
-export async function GetMoveFromServer(moves) {
+export async function GetGameFromServer(gameId) {
     try {
-        const response = await fetch('/api/calculate?moves=' + moves);
+        const response = await fetch('/api/getGame?id=' + gameId);
         if (!response.ok) {
-            console.error(response.text);
-            return "";
+            alert(response.json()["error"]);
+            return ""
         }
-        const data = await response
-        return data.text();
+        return response.json();
     } catch (error) {
-        console.error(error.message); // Handle any errors
+        alert(error.message);
         return "";
     }
 }

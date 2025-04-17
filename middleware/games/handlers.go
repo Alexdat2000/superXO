@@ -8,9 +8,10 @@ import (
 )
 
 type GetGameResponce struct {
-	Moves      string `json:"moves"`
-	Error      string `json:"error"`
-	GameStatus string `json:"game_status"`
+	Moves         string `json:"moves"`
+	Error         string `json:"error"`
+	GameStatus    string `json:"game_status"`
+	GameInitiated bool   `json:"game_initiated"`
 }
 
 func returnError(w http.ResponseWriter, code int, err string) {
@@ -38,7 +39,12 @@ func HandleGetGame(w http.ResponseWriter, r *http.Request) {
 	} else if err != nil {
 		returnError(w, http.StatusInternalServerError, "Error getting game: "+err.Error())
 	} else {
-		msg, _ := json.Marshal(GetGameResponce{Moves: game.Moves, GameStatus: status})
+		w.WriteHeader(http.StatusOK)
+		msg, _ := json.Marshal(GetGameResponce{
+			Moves:         game.Moves,
+			GameStatus:    status,
+			GameInitiated: game.Player1.Valid && game.Player2.Valid,
+		})
 		_, _ = fmt.Fprintf(w, string(msg))
 	}
 }

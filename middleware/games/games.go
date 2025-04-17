@@ -17,8 +17,8 @@ var InvalidMoveError = errors.New("Invalid move")
 
 type Game struct {
 	ID        string
-	Player1   string
-	Player2   string
+	Player1   sql.NullString
+	Player2   sql.NullString
 	Moves     string
 	CreatedAt time.Time
 	LastMove  time.Time
@@ -42,7 +42,7 @@ func getGame(gameId, playerId string) (*Game, string, error) {
 		&game.CreatedAt,
 		&game.LastMove,
 	)
-	if game.Player1 == "" {
+	if !game.Player1.Valid {
 		log.Fatalf("Player1 for game %s is empty", gameId)
 	}
 	if err != nil {
@@ -53,13 +53,13 @@ func getGame(gameId, playerId string) (*Game, string, error) {
 	}
 
 	// Check if player is in the game and try to matchmake
-	if game.Player1 == playerId {
+	if game.Player1.String == playerId {
 		return &game, "player1", nil
 	}
-	if game.Player2 == playerId {
+	if game.Player2.Valid && game.Player2.String == playerId {
 		return &game, "player2", nil
 	}
-	if game.Player2 == "" {
+	if !game.Player2.Valid {
 		err := matchmake(gameId, playerId)
 		if errors.Is(err, OpponentAlreadyFoundError) {
 			return &game, "spectator", nil
@@ -141,11 +141,16 @@ func place(gameId, playerId, move string) error {
 		}
 		return err
 	}
-	if (playerId != game.Player1) && (playerId != game.Player2) {
+	if !game.Player1.Valid || !game.Player2.Valid {
+		tx.Rollback()
+		return errors.New("Can't place in not started game")
+	}
+	if (playerId != game.Player1.String) && (playerId != game.Player2.String) {
 		tx.Rollback()
 		return NoAccessToPlaceError
 	}
-	if (len(game.Moves)%4 == 0 && playerId != game.Player1) || (len(game.Moves)%4 == 2 && playerId != game.Player2) {
+	if (len(game.Moves)%4 == 0 && playerId != game.Player1.String) ||
+		(len(game.Moves)%4 == 2 && playerId != game.Player2.String) {
 		tx.Rollback()
 		return WrongTurnError
 	}

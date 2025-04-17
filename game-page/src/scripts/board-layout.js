@@ -12,6 +12,7 @@ export function UpdateBoard(state) {
 
     const chessboard = document.getElementById("chessboard");
     chessboard.innerHTML = "";
+    document.getElementById('chessboard').style.filter = '';
     for (let row = 0; row < 9; row++) {
         for (let col = 0; col < 9; col++) {
             const cell = document.createElement("div");
@@ -77,9 +78,12 @@ export function UpdateBoard(state) {
         }
     }
 
-    if (state.gameState === "init") {
-        // TODO: darken the board
-        return
+    if (state.gameState === "init" || state.gameState === "server") {
+        document.getElementById('chessboard').style.filter = 'brightness(0.9)';
+        return;
+    }
+    if (state.gameState === "spectator") {
+        return;
     }
 
     // put available move hints

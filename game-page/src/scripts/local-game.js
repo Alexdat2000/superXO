@@ -1,5 +1,5 @@
 import { Board } from "./board-logic";
-import {UpdateBoard} from "./board-layout";
+import { UpdateBoard } from "./board-layout";
 
 class LocalBoard extends Board {
     MakeMove(coord) {
@@ -7,11 +7,15 @@ class LocalBoard extends Board {
             return
         }
         this.Place(coord);
+        if (this.HasWinner()) {
+            this.gameState = "end";
+        }
         UpdateBoard(this);
     }
 }
 
 export function StartLocalGame() {
-    let state = new LocalBoard("", true)
+    let state = new LocalBoard("")
+    state.gameState = "player"
     UpdateBoard(state);
 }

@@ -77,7 +77,7 @@ export function UpdateBoard(state) {
         }
     }
 
-    if (!state.moveAvailable) {
+    if (state.gameState === "init") {
         // TODO: darken the board
         return
     }

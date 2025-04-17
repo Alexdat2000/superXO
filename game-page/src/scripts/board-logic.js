@@ -15,10 +15,10 @@ const gameRows = [
 ]
 
 export class Board {
-    constructor(moves, moveAvailable) {
+    constructor(moves) {
         // main info
         this.moves = moves
-        this.moveAvailable = moveAvailable
+        this.gameState = "init"
 
         // calculated
         this.currentPlayer = this.moves.length % 4 === 0 ? "X" : "O";

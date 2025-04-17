@@ -9,12 +9,12 @@ class RemoteBoard extends Board {
             return
         }
         this.Place(coord)
-        this.DenyMove()
         if (this.HasWinner()) {
-            this.AllowMove();
+            this.gameState = "end";
             UpdateBoard(this);
             return;
         }
+        this.gameState = "server";
         UpdateBoard(this);
 
         GetMoveFromServer(this.moves).then(move => {
@@ -23,16 +23,17 @@ class RemoteBoard extends Board {
             }
             this.Place(StringToCoord(move));
             if (this.HasWinner()) {
+                this.gameState = "end";
                 UpdateBoard(this);
                 return;
             }
-            this.AllowMove();
+            this.gameState = "player";
             UpdateBoard(this);
         })
     }
 }
 
 export function StartRemoteGame(gameId) {
-    let state = new RemoteBoard("", true)
+    let state = new RemoteBoard("")
     UpdateBoard(state);
 }

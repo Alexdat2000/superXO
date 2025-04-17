@@ -35,6 +35,7 @@ function gameInitiationLoop() {
         state.Extend(game["moves"]);
         if (game["game_status"] === "spectator") {
             state.gameState = "spectator";
+            UpdateBoard(state);
             spectatorLoop();
         } else if (game["game_status"] === "player1") {
             if (state.moves.length % 4 === 0) {

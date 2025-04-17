@@ -2,7 +2,7 @@ body {
   margin: 0;
   background: #302e2b;
 
-  height: 100vh;
+  min-height: 100vh; 
   display: grid;
   grid-template-rows: 100px 1fr 50px;
 
@@ -23,7 +23,6 @@ main {
   color: #ccc;
   font-family: 'Segoe UI', Arial, sans-serif;
   margin: 0;
-  min-height: 100vh;
 }
 
 .main-menu {

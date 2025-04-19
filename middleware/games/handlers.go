@@ -1,9 +1,11 @@
 package games
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -62,7 +64,7 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 	playerId := playerIdCookie.Value
 
 	id := generateRandomString(10)
-	err = createGame(id, playerId)
+	err = createGame(id, playerId, r.URL.Query().Get("bot"))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		msg, _ := json.Marshal(MaybeErrorResponce{Error: "Error creating game: " + err.Error()})
@@ -94,7 +96,7 @@ func HandlePlace(w http.ResponseWriter, r *http.Request) {
 	}
 	playerId := playerIdCookie.Value
 
-	err = place(gameId, playerId, move)
+	board, err := place(gameId, playerId, move)
 	if errors.Is(err, GameNotFoundError) {
 		w.WriteHeader(http.StatusNotFound)
 		msg, _ := json.Marshal(MaybeErrorResponce{Error: "Game not found"})
@@ -116,5 +118,24 @@ func HandlePlace(w http.ResponseWriter, r *http.Request) {
 		returnError(w, http.StatusInternalServerError, "Error placing move: "+err.Error())
 	} else {
 		w.WriteHeader(http.StatusOK)
+	}
+
+	// Check wether we need to call bot
+	game, role, err := getGame(gameId, playerId)
+	if err != nil {
+		log.Printf("Error getting game: %v", err)
+		return
+	}
+	var opp sql.NullString
+	if role == "player1" {
+		opp = game.Player2
+	} else {
+		opp = game.Player1
+	}
+	if opp.Valid && opp.String[:3] == "bot" && !board.HasWinner() {
+		_, err := place(gameId, opp.String, GetBestMove(game.Moves, opp.String[3:]))
+		if err != nil {
+			log.Printf("Error executing bot's move: %v", err)
+		}
 	}
 }

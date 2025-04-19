@@ -1,3 +1,4 @@
+#define CROW_USE_BOOST 1
 // SPDX-License-Identifier: BSD-3-Clause AND ISC AND MIT
 /*BSD 3-Clause License
 

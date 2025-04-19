@@ -73,32 +73,45 @@ func getGame(gameId, playerId string) (*Game, string, error) {
 	}
 }
 
-func createGame(gameID, playerId string) error {
-	if len(gameID) != 10 {
-		log.Fatalf("Invalid game id: %s", gameID)
+func createGame(gameId, playerId, bot string) error {
+	if len(gameId) != 10 {
+		return errors.New("Invalid game id: " + gameId)
 	}
 	if len(playerId) != 10 {
-		log.Fatalf("Invalid player id: %s", playerId)
+		return errors.New("Invalid player id: " + playerId)
 	}
-
-	query := `
+	if bot != "1" && bot != "2" && bot != "3" && bot != "" {
+		return errors.New("Invalid bot")
+	}
+	if bot != "" {
+		query := `
+        INSERT INTO games (id, player1, player2)
+        VALUES ($1, $2, $3)
+    `
+		_, err := DB.Exec(query, gameId, playerId, "bot"+bot)
+		if err != nil {
+			return err
+		}
+	} else {
+		query := `
         INSERT INTO games (id, player1)
         VALUES ($1, $2)
     `
-	_, err := DB.Exec(query, gameID, playerId)
-	if err != nil {
-		return err
+		_, err := DB.Exec(query, gameId, playerId)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
-func matchmake(gameID, playerId string) error {
+func matchmake(gameId, playerId string) error {
 	query := `
 	UPDATE games
 	SET player2 = $1
 	WHERE id = $2 AND (player2 IS NULL OR player2 = '')
 `
-	result, err := DB.Exec(query, playerId, gameID)
+	result, err := DB.Exec(query, playerId, gameId)
 	if err != nil {
 		return err
 	}
@@ -112,10 +125,10 @@ func matchmake(gameID, playerId string) error {
 	return nil
 }
 
-func place(gameId, playerId, move string) error {
+func place(gameId, playerId, move string) (*boardApi.Board, error) {
 	tx, err := DB.Begin()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	queryGet := `
@@ -137,29 +150,30 @@ func place(gameId, playerId, move string) error {
 	if err != nil {
 		tx.Rollback()
 		if err == sql.ErrNoRows {
-			return GameNotFoundError
+			return nil, GameNotFoundError
 		}
-		return err
+		return nil, err
 	}
 	if !game.Player1.Valid || !game.Player2.Valid {
 		tx.Rollback()
-		return errors.New("Can't place in not started game")
+		return nil, errors.New("Can't place in not started game")
 	}
 	if (playerId != game.Player1.String) && (playerId != game.Player2.String) {
 		tx.Rollback()
-		return NoAccessToPlaceError
+		return nil, NoAccessToPlaceError
 	}
 	if (len(game.Moves)%4 == 0 && playerId != game.Player1.String) ||
 		(len(game.Moves)%4 == 2 && playerId != game.Player2.String) {
 		tx.Rollback()
-		return WrongTurnError
+		return nil, WrongTurnError
 	}
 
-	err = boardApi.NewBoard(game.Moves).Place(boardApi.StringToCoord(move))
+	board := boardApi.NewBoard(game.Moves)
+	err = board.Place(boardApi.StringToCoord(move))
 	if err != nil {
 		println(game.Moves, move)
 		tx.Rollback()
-		return InvalidMoveError
+		return nil, InvalidMoveError
 	}
 
 	queryUpdate := `
@@ -171,7 +185,7 @@ func place(gameId, playerId, move string) error {
 	_, err = tx.Exec(queryUpdate, move, gameId)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return nil, err
 	}
-	return tx.Commit()
+	return board, tx.Commit()
 }

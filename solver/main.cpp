@@ -4,7 +4,10 @@
 
 #include "board_fast.hpp"
 #include "crow_all.h"
-#include "monte_carlo_tree_simple.cpp"
+#include "bot1.cpp"
+#include "bot2.cpp"
+#include "bot3.cpp"
+
 
 int main() {
   crow::SimpleApp app;
@@ -16,10 +19,18 @@ int main() {
 
   CROW_ROUTE(app, "/calculate")
       .methods(crow::HTTPMethod::GET)([&](const crow::request& req) {
-        const char* paramValue = req.url_params.get("moves");
-        std::string moves = (paramValue != nullptr) ? paramValue : "";
+        const char* moves_param = req.url_params.get("moves");
+        const char* bot_level_param = req.url_params.get("bot");
+        std::string moves = (moves_param != nullptr) ? moves_param : "";
         auto b = BoardFast(moves);
-      return GetBestMove(b, 10'000);
+        std::string bot_level = (bot_level_param != nullptr) ? bot_level_param : "3";
+        if (bot_level == "1") {
+          return Bot1Move(b);
+        } else if (bot_level == "2") {
+          return Bot2Move(b);
+        } else {
+          return Bot3Move(b, 10'000);
+        }
       });
 
   app.port(18080).multithreaded().run();

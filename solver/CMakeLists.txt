@@ -3,6 +3,5 @@ project(solver)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(solver main.cpp board.hpp
-        algo_ofek.cpp
-        monte_carlo_tree_simple.cpp)
+add_executable(solver main.cpp)
+add_definitions(-DCROW_USE_BOOST)

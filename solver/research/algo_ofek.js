@@ -790,7 +790,7 @@ function parseOver(over) {
             return 2;
     }
 }
-
+ 
 function evaluateOver(lastMove) {
     var color = xTurnGlobal ? 5:6;
     if (gameOver(board, color, lastMove))

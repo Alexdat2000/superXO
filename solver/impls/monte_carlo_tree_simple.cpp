@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "board_fast.hpp"
+#include "../board/board_fast.hpp"
 
 std::mt19937 gen(static_cast<unsigned int>(std::time(0)));
 

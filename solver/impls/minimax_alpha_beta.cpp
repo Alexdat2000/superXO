@@ -1,4 +1,4 @@
-#include "../board_fast.hpp"
+#include "../board/board_fast.hpp"
 
 const int SCORE_TILE_CLAIMED = 20;
 const int SCORE_TWO_IN_A_ROW = 3;

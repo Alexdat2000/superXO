@@ -1,8 +1,6 @@
 #define CROW_MAIN
 
-#include <iostream>
-
-#include "board_fast.hpp"
+#include "board/board_fast.hpp"
 #include "crow_all.h"
 #include "bot1.cpp"
 #include "bot2.cpp"
@@ -29,7 +27,7 @@ int main() {
         } else if (bot_level == "2") {
           return Bot2Move(b);
         } else {
-          return Bot3Move(b, 10'000);
+          return Bot3Move(b);
         }
       });
 

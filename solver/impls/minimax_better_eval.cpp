@@ -1,3 +1,5 @@
+// Formula from https://raw.githubusercontent.com/jatin7gupta/Ultimate-tic-tac-toe/refs/heads/master/tictactoe.py
+
 #include "../board/board_fast.hpp"
 
 const int SCORE_TILE_CLAIMED = 20;
@@ -7,8 +9,63 @@ const int SCORE_WIN = (SCORE_TILE_CLAIMED * 9 + SCORE_TWO_IN_A_ROW * 9 * 12 +
                        SCORE_SINGLE_POINT * 81) *
                       10;
 
+namespace heur {
+
+int three_in_a_row(BoardFast board, int player) {
+  int ans = 0;
+  for (size_t i = 0; i < 9; i++) {
+    for (const auto [a, b, c] : gameRows2) {
+      std::array<size_t, 3> cnt{};
+      cnt[board.GetMarkInSubboard(i, a)]++;
+      cnt[board.GetMarkInSubboard(i, b)]++;
+      cnt[board.GetMarkInSubboard(i, c)]++;
+      if (cnt[player] == 3) {
+        ans++;
+      }
+    }
+  }
+  return ans;
+}
+
+int two_p1_one_p2(BoardFast board, int player) {
+  int ans = 0;
+  for (size_t i = 0; i < 9; i++) {
+    for (const auto [a, b, c] : gameRows2) {
+      std::array<size_t, 3> cnt{};
+      cnt[board.GetMarkInSubboard(i, a)]++;
+      cnt[board.GetMarkInSubboard(i, b)]++;
+      cnt[board.GetMarkInSubboard(i, c)]++;
+      if (cnt[player] == 2 && cnt[3 - player] == 1) {
+        ans++;
+      }
+    }
+  }
+  return ans;
+}
+
+int fork(BoardFast board, int player) {
+  
+}
+
+}  // namespace heur
+
 int calculate_score(BoardFast board) {
   int score = 0;
+
+  double x1 = heur::three_in_a_row(board, 1) - heur::three_in_a_row(board, 2);
+  double x2 = heur::two_p1_one_p2(board, 1) - heur::two_p1_one_p2(board, 2);
+  double x3 = heur::fork(board, 1) - heur::fork(board, 2);
+  double x4 = heur::play_centre(board, 1) - heur::play_centre(board, 2);
+  double x5 = heur::block_opposite_corner(board, 1) -
+              heur::block_opposite_corner(board, 2);
+  double x6 =
+      heur::play_empty_corner(board, 1) - heur::play_empty_corner(board, 2);
+  double x7 =
+      heur::two_p1_next_empty(board, 1) - heur::two_p1_next_empty(board, 2);
+  double x8 = heur::create_fork(board, 1) - heur::create_fork(board, 2);
+  double x9 = heur::block_opp_fork(board, 1) - heur::block_opp_fork(board, 2);
+  double x10 =
+      heur::two_p1_next_empty(board, 2) - heur::two_p1_next_empty(board, 1);
 
   for (size_t i = 0; i < 9; i++) {
     int inner_board_score = 0;
@@ -48,11 +105,11 @@ int calculate_score(BoardFast board) {
   return score;
 }
 
-
 std::mt19937 gen_minimax(static_cast<unsigned int>(std::time(0)));
 
 std::pair<int, size_t> minimax(BoardFast board, bool maximizing_player,
-                               int depth, int alpha, int beta, clock_t time_start) {
+                               int depth, int alpha, int beta,
+                               clock_t time_start) {
   if (board.Winner() == 1) {
     return {SCORE_WIN, 0};
   } else if (board.Winner() == 2) {
@@ -62,7 +119,7 @@ std::pair<int, size_t> minimax(BoardFast board, bool maximizing_player,
   } else if (depth == 0) {
     return {calculate_score(board), 0};
   }
-  if ((clock() - time_start) / (double) CLOCKS_PER_SEC > 1.0) {
+  if ((clock() - time_start) / (double)CLOCKS_PER_SEC > 1.0) {
     return {calculate_score(board), 0};
   }
 

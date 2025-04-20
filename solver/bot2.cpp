@@ -7,6 +7,6 @@
 std::mt19937 gen2(static_cast<unsigned int>(std::time(0)));
 
 std::string Bot2Move(BoardFast board) {
-    auto ans = minimax(board, board.CurrentPlayer() == 1, 8, INT_MIN, INT_MAX).second;
+    auto ans = minimax(board, board.CurrentPlayer() == 1, 8, INT_MIN, INT_MAX, clock()).second;
     return Coord(ans).str;
 }

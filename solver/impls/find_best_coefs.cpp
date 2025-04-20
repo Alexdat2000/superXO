@@ -1,7 +1,7 @@
-#include "board/board_fast.hpp"
-#include "impls/minimax_alpha_beta.cpp"
-#include "impls/random.cpp"
-#include "coord.hpp"
+#include "../board/board_fast.hpp"
+#include "minimax_alpha_beta.cpp"
+#include "minimax_better_formula.cpp"
+#include "../coord.hpp"
 
 int main() {
     std::array<int, 4> winners{};
@@ -12,7 +12,7 @@ int main() {
                 Coord move = Coord(minimax(board, board.CurrentPlayer() == 1, 8, INT_MIN, INT_MAX, clock()).second);
                 board.Place(move.row, move.col);
             } else {
-                Coord move = Coord(minimax(board, board.CurrentPlayer() == 1, 8, INT_MIN, INT_MAX, clock()).second);
+                Coord move = Coord(minimax2(board, board.CurrentPlayer() == 1, 8, INT_MIN, INT_MAX, clock()).second);
                 board.Place(move.row, move.col);
             }
         } 

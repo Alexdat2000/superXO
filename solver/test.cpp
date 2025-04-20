@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
-#include "board_fast.hpp"
+#include "board/board_fast.hpp"
+#include "coord.hpp"
 
 TEST(BoardTest, TestEmptyBoard) {
     auto board = BoardFast("");
@@ -39,6 +40,30 @@ TEST(BoardTest, TestEndedGame) {
     EXPECT_EQ(board.GetMarkInSubboard(0, 6), 2);
     EXPECT_EQ(board.GetMarkInSubboard(1, 5), 2);
     EXPECT_EQ(board.GetMarkInSubboard(8, 8), 2);
+}
+
+TEST(CoordTest, TestCoord) {
+    auto C4 = Coord("C4");
+    EXPECT_EQ(C4.row, 3);
+    EXPECT_EQ(C4.col, 2);
+    EXPECT_EQ(C4.index, 29);
+    EXPECT_EQ(C4.str, "C4");
+    EXPECT_EQ(C4.inSubBoard(), 3);
+    EXPECT_EQ(C4.toSubBoard(), 2);
+    EXPECT_EQ(C4.toSubBoardRow(), 0);
+    EXPECT_EQ(C4.toSubBoardCol(), 2);
+
+    auto H5 = Coord(4, 7);
+    EXPECT_EQ(H5.row, 4);
+    EXPECT_EQ(H5.col, 7);
+    EXPECT_EQ(H5.index, 43);
+    EXPECT_EQ(H5.str, "H5");
+
+    auto I9 = Coord(80);
+    EXPECT_EQ(I9.row, 8);
+    EXPECT_EQ(I9.col, 8);
+    EXPECT_EQ(I9.index, 80);
+    EXPECT_EQ(I9.str, "I9");
 }
 
 int main(int argc, char **argv) {

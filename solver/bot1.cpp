@@ -1,7 +1,7 @@
 #include <string>
 
-#include "board.hpp"
 #include "board_fast.hpp"
+#include "coord.hpp"
 
 std::mt19937 gen1(static_cast<unsigned int>(std::time(0)));
 

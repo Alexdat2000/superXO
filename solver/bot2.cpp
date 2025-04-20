@@ -1,9 +1,13 @@
 #include <string>
 
 #include "board_fast.hpp"
+#include "impls/minimax_alpha_beta.cpp"
+#include "coord.hpp"
 
 std::mt19937 gen2(static_cast<unsigned int>(std::time(0)));
 
 std::string Bot2Move(BoardFast board) {
-    return "";
+    auto ans = minimax(board, board.CurrentPlayer() == 1, 8, INT_MIN, INT_MAX).second;
+    std::cout << ans << std::endl;
+    return Coord(ans).str;
 }

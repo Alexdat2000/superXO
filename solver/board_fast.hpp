@@ -52,6 +52,9 @@ class BoardFast {
  public:
   vector<size_t> calculateAvailableMoves() {
     vector<size_t> available;
+    if (winner != 0) {
+      return available;
+    }
     if (last_move == -1) {
       available.resize(81);
       iota(available.begin(), available.end(), 0u);
@@ -93,6 +96,14 @@ class BoardFast {
                  (subboard_winner << (2 * sub_board));
     winner = calcSubWinner(subWinners);
     last_move = row * 9 + col;
+  }
+
+  [[nodiscard]] uint32_t GetSubWinner(size_t field) const {
+    return (subWinners >> (2 * field)) & 3;
+  }
+
+  [[nodiscard]] uint32_t GetMarkInSubboard(size_t field, size_t cell) const {
+    return (boardState[field] >> (2 * cell)) & 3;
   }
 
   [[nodiscard]] uint32_t Winner() const { return winner; }

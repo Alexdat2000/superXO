@@ -17,13 +17,14 @@ const gameRows = [
 ]
 
 export class Board {
-    constructor(moves, time_limit = null) {
+    constructor(moves, time_limit = null, time_delta = 0) {
         // main info
         this.moves = moves
         this.gameState = "init"
         
         this.time1at = this.time2at = Date.now()
         this.time1left = this.time2left = time_limit
+        this.time_delta = time_delta
 
         // calculated
         this.currentPlayer = this.moves.length % 4 === 0 ? "X" : "O";
@@ -134,12 +135,6 @@ export class Board {
 
     // Update state
     Place(coord) {
-        if (this.currentPlayer == 'X') {
-            this.time2at = Date.now();
-        } else {
-            this.time1at = Date.now();
-        }
-        this.UpdateTimer();
         if (this.availableMoves[coord.index] === false || this.HasWinner()) {
             return
         }

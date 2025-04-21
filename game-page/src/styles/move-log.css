@@ -46,3 +46,7 @@ table.move-log {
 .log-player2 {
     color: #0065ff;
 }
+
+.log-title.current-player {
+    background-color: #494A44;
+}

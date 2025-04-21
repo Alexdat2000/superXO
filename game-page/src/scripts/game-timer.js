@@ -13,4 +13,10 @@ export function UpdateGameTimer(state) {
     let seconds2 = Math.floor(state.time2left / 1000) % 60;
     timer2.textContent = minutes2.toString().padStart(2, '0') + ':' +
         seconds2.toString().padStart(2, '0');
+    
+    if (state.currentPlayer === "X") {
+        timer1.classList.add('current-player');
+    } else {
+        timer2.classList.add('current-player');
+    }
 }

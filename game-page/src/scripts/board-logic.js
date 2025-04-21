@@ -1,3 +1,5 @@
+import { UpdateBoard } from "./board-layout";
+import { UpdateGameTimer } from "./game-timer";
 import {
     CoordinatesToCoord,
     StringToCoord,
@@ -15,10 +17,13 @@ const gameRows = [
 ]
 
 export class Board {
-    constructor(moves) {
+    constructor(moves, time_limit = null) {
         // main info
         this.moves = moves
         this.gameState = "init"
+        
+        this.time1at = this.time2at = Date.now()
+        this.time1left = this.time2left = time_limit
 
         // calculated
         this.currentPlayer = this.moves.length % 4 === 0 ? "X" : "O";
@@ -129,6 +134,15 @@ export class Board {
 
     // Update state
     Place(coord) {
+        if (this.currentPlayer == 'X') {
+            this.time2at = Date.now();
+        } else {
+            this.time1at = Date.now();
+        }
+        this.UpdateTimer();
+        if (this.availableMoves[coord.index] === false || this.HasWinner()) {
+            return
+        }
         this.moves += coord.str;
         this.board = this.board.substring(0, coord.index) + this.currentPlayer + this.board.substring(coord.index + 1);
         this.currentPlayer = this.currentPlayer === "X" ? "O" : "X";
@@ -154,5 +168,29 @@ export class Board {
     // Intrgration with game logic
     MakeMove(coord) {
         throw new Error("Shouldn't be used as a base class");
+    }
+
+    UpdateTimer() {
+        if (this.currentPlayer == 'X') {
+            const new_time = Date.now();
+            this.time1left = Math.max(0, this.time1left - (new_time - this.time1at));
+            this.time1at = new_time;
+            if (this.time1left == 0) {
+                this.winner = 'O';
+                UpdateBoard(this);
+            } else {
+                UpdateGameTimer(this)
+            }
+        } else {
+            const new_time = Date.now();
+            this.time2left = Math.max(0, this.time2left - (new_time - this.time2at));
+            this.time2at = new_time;
+            if (this.time2left == 0) {
+                this.winner = 'X';
+                UpdateBoard(this);
+            } else {
+                UpdateGameTimer(this)
+            }
+        }
     }
 }

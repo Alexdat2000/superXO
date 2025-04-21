@@ -15,7 +15,14 @@ class LocalBoard extends Board {
 }
 
 export function StartLocalGame() {
-    let state = new LocalBoard("")
+    let state = new LocalBoard("", 300 * 1000)
     state.gameState = "player"
     UpdateBoard(state);
+
+    let timerInterval = setInterval(() => {
+        if (state.HasWinner()) {
+            clearInterval(timerInterval);
+        }
+        state.UpdateTimer();
+    }, 100);
 }

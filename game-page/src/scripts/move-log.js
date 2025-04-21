@@ -34,4 +34,11 @@ export function UpdateMoveLog(log) {
             cell.textContent = move;
         }
     }
+
+    let timer1 = row1.insertCell()
+    timer1.classList.add('log-player1');
+    timer1.classList.add('log-title');
+    let timer2 = row2.insertCell()
+    timer2.classList.add('log-player2');
+    timer2.classList.add('log-title');
 }

@@ -3,12 +3,14 @@ import circle from "../assets/circle.svg"
 import moveOrange from "../assets/move-orange.svg"
 import moveBlue from "../assets/move-blue.svg"
 
-import {CoordinatesToCoord, IndexToCoord, StringToCoord} from "./coord";
-import {UpdateMoveLog} from "./move-log";
+import { CoordinatesToCoord, IndexToCoord, StringToCoord } from "./coord";
+import { UpdateMoveLog } from "./move-log";
+import { UpdateGameTimer } from "./game-timer";
 
 export function UpdateBoard(state) {
     console.log(state);
     UpdateMoveLog(state.moves)
+    UpdateGameTimer(state);
 
     const chessboard = document.getElementById("chessboard");
     chessboard.innerHTML = "";

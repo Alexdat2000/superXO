@@ -50,7 +50,7 @@ class BoardFast {
   }
 
  public:
-  vector<size_t> calculateAvailableMoves() {
+  vector<size_t> calculateAvailableMoves() const {
     vector<size_t> available;
     if (winner != 0) {
       return available;

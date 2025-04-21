@@ -4,7 +4,7 @@
 
 namespace heur {
 
-int three_in_a_row(BoardFast board, int player) {
+int three_in_a_row(const BoardFast board, int player) {
   int ans = 0;
   for (size_t i = 0; i < 9; i++) {
     if (board.GetSubWinner(i) == player) {
@@ -14,7 +14,7 @@ int three_in_a_row(BoardFast board, int player) {
   return ans;
 }
 
-int two_p1_one_p2(BoardFast board, int player) {
+int two_p1_one_p2(const BoardFast board, int player) {
   int ans = 0;
   for (size_t i = 0; i < 9; i++) {
     if (board.GetSubWinner(i) != 0) {
@@ -33,7 +33,7 @@ int two_p1_one_p2(BoardFast board, int player) {
   return ans;
 }
 
-int fork(BoardFast board, int player) {
+int fork(const BoardFast board, int player) {
   int ans = 0;
   for (int i = 0; i < 9; i++) {
     for (auto line1 : gameRows2) {
@@ -69,7 +69,7 @@ int fork(BoardFast board, int player) {
   return ans;
 }
 
-int play_centre(BoardFast board, int player) {
+int play_centre(const BoardFast board, int player) {
   int ans = 0;
   for (size_t i = 0; i < 9; i++) {
     if (board.GetMarkInSubboard(i, 4) == 0) {
@@ -79,7 +79,7 @@ int play_centre(BoardFast board, int player) {
   return ans;
 }
 
-int block_opposite_corner(BoardFast board, int player) {
+int block_opposite_corner(const BoardFast board, int player) {
   int ans = 0;
   for (size_t i = 0; i < 9; i++) {
     for (size_t a = 0; a < 3; a += 2) {
@@ -94,7 +94,7 @@ int block_opposite_corner(BoardFast board, int player) {
   return ans;
 }
 
-int play_empty_corner(BoardFast board, int player) {
+int play_empty_corner(const BoardFast board, int player) {
   int ans = 0;
   for (int i = 0; i < 9; i++) {
     for (auto j : {0, 2, 6, 8}) {
@@ -106,7 +106,7 @@ int play_empty_corner(BoardFast board, int player) {
   return ans;
 }
 
-int two_p1_next_empty(BoardFast board, int player) {
+int two_p1_next_empty(const BoardFast board, int player) {
   int ans = 0;
   for (size_t i = 0; i < 9; i++) {
     if (board.GetSubWinner(i) != 0) {
@@ -125,7 +125,7 @@ int two_p1_next_empty(BoardFast board, int player) {
   return ans;
 }
 
-int create_fork(BoardFast board, int player) {
+int create_fork(const BoardFast board, int player) {
   int ans = 0;
   for (int i = 0; i < 9; i++) {
     for (auto line1 : gameRows2) {
@@ -161,7 +161,7 @@ int create_fork(BoardFast board, int player) {
   return ans;
 }
 
-int block_opp_fork(BoardFast board, int player) {
+int block_opp_fork(const BoardFast board, int player) {
   int ans = 0;
   for (int i = 0; i < 9; i++) {
     for (auto line1 : gameRows2) {
@@ -205,7 +205,7 @@ vector<int> coefs = {0, 20, 0, 0, 0, 0, 0, 3, 0, 0};
 int calculate_score_better(BoardFast board) {
   double x1 = heur::three_in_a_row(board, 1) - heur::three_in_a_row(board, 2);
   double x2 = heur::two_p1_one_p2(board, 1) - heur::two_p1_one_p2(board, 2);
-  double x3 = heur::fork(board, 1) - heur::fork(board, 2);
+  // double x3 = heur::fork(board, 1) - heur::fork(board, 2);
   double x4 = heur::play_centre(board, 1) - heur::play_centre(board, 2);
   double x5 = heur::block_opposite_corner(board, 1) -
               heur::block_opposite_corner(board, 2);
@@ -213,12 +213,10 @@ int calculate_score_better(BoardFast board) {
       heur::play_empty_corner(board, 1) - heur::play_empty_corner(board, 2);
   double x7 =
       heur::two_p1_next_empty(board, 1) - heur::two_p1_next_empty(board, 2);
-  double x8 = heur::create_fork(board, 1) - heur::create_fork(board, 2);
-  double x9 = heur::block_opp_fork(board, 1) - heur::block_opp_fork(board, 2);
-
-  return coefs[1] * x1 + coefs[2] * x2 + coefs[3] * x3 + coefs[4] * x4 +
-         coefs[5] * x5 - coefs[6] * x6 + coefs[7] * x7 + coefs[8] * x8 +
-         coefs[9] * x9;
+  // double x8 = heur::create_fork(board, 1) - heur::create_fork(board, 2);
+  // double x9 = heur::block_opp_fork(board, 1) - heur::block_opp_fork(board, 2);
+  return x1 * coefs[1] + x2 * coefs[2] + x4 * coefs[4] +
+         x5 * coefs[5] + x6 * coefs[6] + x7 * coefs[7];
 }
 
 std::mt19937 gen_minimax2(static_cast<unsigned int>(std::time(0)));
@@ -227,9 +225,9 @@ std::pair<int, size_t> minimax2(BoardFast board, bool maximizing_player,
                                 int depth, int alpha, int beta,
                                 clock_t time_start) {
   if (board.Winner() == 1) {
-    return {INT_MAX / 10, 0};
+    return {SCORE_WIN, 0};
   } else if (board.Winner() == 2) {
-    return {INT_MIN / 10, 0};
+    return {-SCORE_WIN, 0};
   } else if (board.Winner() == 3) {
     return {0, 0};
   } else if (depth == 0) {

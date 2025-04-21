@@ -22,14 +22,6 @@ int calculate_score(BoardFast board) {
       continue;
     }
 
-    for (size_t j = 0; j < 9; j++) {
-      if (board.GetMarkInSubboard(i, j) == 1) {
-        inner_board_score += SCORE_SINGLE_POINT;
-      } else if (board.GetMarkInSubboard(i, j) == 2) {
-        inner_board_score -= SCORE_SINGLE_POINT;
-      }
-    }
-
     for (const auto [a, b, c] : gameRows2) {
       std::array<size_t, 3> cnt{};
       cnt[board.GetMarkInSubboard(i, a)]++;

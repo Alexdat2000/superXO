@@ -18,7 +18,7 @@ MCTSNode::~MCTSNode() {
   }
 }
 
-void MCTSNode::choose_child(Board board, Subs empty_spots, size_t total_empty) {
+void MCTSNode::choose_child(Board& board, Subs& empty_spots, int& total_empty) {
   if (!has_children) {
     has_children = true;
     children = mcts_get_children(this, board);
@@ -27,15 +27,15 @@ void MCTSNode::choose_child(Board board, Subs empty_spots, size_t total_empty) {
   if (result != 10) {
     back_propogate(result);
   } else {
-    size_t i, empty_left, play_move_result;
-    size_t unexplored = count_unexplored;
+    int i, empty_left, play_move_result;
+    int unexplored = count_unexplored;
     if (unexplored > 0) {
       count_unexplored--;
-      size_t ran = gen_ofek() % unexplored;
+      int ran = gen_ofek() % unexplored + 1;
       for (i = 0; i < children.size(); i++) {
         if (children[i]->total_tries == 0) {
-          unexplored--;
-          if (unexplored == 0) {
+          ran--;
+          if (ran == 0) {
             Coord last_move = *children[i]->last_move;
             empty_left = empty_spots[last_move.inSubBoardRow()]
                                     [last_move.inSubBoardCol()];
@@ -101,7 +101,7 @@ void MCTSNode::back_propogate(int simulation) {
   }
 }
 
-double mcts_child_potential(MCTSNode* child, size_t total_tries) {
+double mcts_child_potential(MCTSNode* child, int total_tries) {
   double w = child->misses - child->hits;
   double n = child->total_tries;
   double c = EXPANSION_CONSTANT;
@@ -109,7 +109,7 @@ double mcts_child_potential(MCTSNode* child, size_t total_tries) {
 }
 
 int play_move_empty_left(Board& board, Coord last_move, bool xturn,
-                         size_t empty_left) {
+                         int empty_left) {
   int color = xturn ? 1 : 2;
   Coord start(last_move.row - last_move.row % 3,
               last_move.col - last_move.col % 3);
@@ -125,7 +125,7 @@ int play_move_empty_left(Board& board, Coord last_move, bool xturn,
   return 0;
 }
 
-bool local_win(Board board, int color, Coord last_move, Coord start) {
+bool local_win(Board& board, int color, Coord last_move, Coord start) {
   for (auto [a, b, c] : gameRows2) {
     if (board[start.row + a / 3][start.col + a % 3] == color &&
         board[start.row + b / 3][start.col + b % 3] == color &&
@@ -136,7 +136,7 @@ bool local_win(Board board, int color, Coord last_move, Coord start) {
   return false;
 }
 
-bool game_over(Board board, int color, Coord start) {
+bool game_over(Board& board, int color, Coord start) {
   for (auto [a, b, c] : gameRows2) {
     if (board[start.row - start.row % 3 + a / 3]
              [start.col - start.col % 3 + a % 3] == color &&
@@ -150,19 +150,19 @@ bool game_over(Board board, int color, Coord start) {
   return false;
 }
 
-int mcts_simulate(MCTSNode* parent, Board board, Subs empty_spots,
-                  int total_empty, int play_move_result) {
+int mcts_simulate(MCTSNode* parent, Board& board, Subs& empty_spots,
+                  int& total_empty, int play_move_result) {
   if (parent->result != 10) {
     return parent->result;
   }
 
   if (play_move_result == 1 && total_empty <= 54 &&
       game_over(board, parent->turn ? 6 : 5, *parent->last_move)) {
-    return 0;
+    return parent->result = -1;
   }
 
   if (total_empty == 0) {
-    return 0;
+    return parent->result = 0;
   }
 
   auto lm = *parent->last_move;
@@ -197,6 +197,7 @@ int mcts_simulate(MCTSNode* parent, Board board, Subs empty_spots,
           if (board[c.row][c.col] == 0) {
             if (count == 0) {
               goal = c;
+              break;
             } else {
               count--;
             }
@@ -206,7 +207,7 @@ int mcts_simulate(MCTSNode* parent, Board board, Subs empty_spots,
     }
 
     int empty_left = empty_spots[goal.row / 3][goal.col / 3];
-    int play_move_result = play_move_empty_left(board, goal, turn, empty_left);
+    play_move_result = play_move_empty_left(board, goal, turn, empty_left);
     if (play_move_result == 0) {
       total_empty--;
       empty_spots[goal.row / 3][goal.col / 3]--;
@@ -231,7 +232,7 @@ int mcts_simulate(MCTSNode* parent, Board board, Subs empty_spots,
 }
 
 vector<MCTSNode*> mcts_get_children(MCTSNode* parent,
-                                               Board board) {
+                                               Board& board) {
   if (parent->result != 10) {
     return {};
   }
@@ -272,16 +273,16 @@ vector<MCTSNode*> mcts_get_children(MCTSNode* parent,
   }
 }
 
-Coord run_mcts(BoardFast board, size_t iters) {
+Coord run_mcts(BoardFast board, int iters) {
   Board mcts_board{};
-  for (size_t i = 0; i < 9; i++) {
+  for (int i = 0; i < 9; i++) {
     for (int j = 0; j < 9; j++) {
       mcts_board[i][j] = board.GetMark(i, j);
     }
   }
   Subs empty_spots{};
-  size_t total_empty = 0;
-  for (size_t i = 0; i < 9; i++) {
+  int total_empty = 0;
+  for (int i = 0; i < 9; i++) {
     for (int j = 0; j < 9; j++) {
       if (board.GetMarkInSubboard(i, j) == 0) {
         empty_spots[i / 3][i % 3]++;
@@ -296,19 +297,39 @@ Coord run_mcts(BoardFast board, size_t iters) {
 
   time_t start = clock();
   while ((double)(clock() - start) / CLOCKS_PER_SEC < 1) {
-    root->choose_child(mcts_board, empty_spots, total_empty);
+    auto new_board = mcts_board;
+    auto new_empty_spots = empty_spots;
+    auto new_total_empty = total_empty;
+    root->choose_child(new_board, new_empty_spots, new_total_empty);
   }
 
   if (root->children.empty()) {
+    delete root;
     return Coord(-1, -1);
   }
-  size_t most_trials = root->children[0]->total_tries;
+
+  // Most tries
+  // int most_trials = root->children[0]->total_tries;
+  // Coord ans = *root->children[0]->last_move;
+  // for (int i = 1; i < root->children.size(); i++) {
+  //   if (root->children[i]->total_tries > most_trials) {
+  //     most_trials = root->children[i]->total_tries;
+  //     ans = *root->children[i]->last_move;
+  //   }
+  // }
+  // delete root;
+  // return ans;
+
+  // Best ratio
+  double best_ratio = (double) root->children[0]->hits / (root->children[0]->hits + root->children[0]->misses);
   Coord ans = *root->children[0]->last_move;
-  for (size_t i = 1; i < root->children.size(); i++) {
-    if (root->children[i]->total_tries > most_trials) {
-      most_trials = root->children[i]->total_tries;
+  for (int i = 1; i < root->children.size(); i++) {
+    double ratio =(double) root->children[i]->hits / (root->children[i]->hits + root->children[i]->misses);
+    if (ratio > best_ratio) {
+      best_ratio = ratio;
       ans = *root->children[i]->last_move;
     }
   }
+  delete root;
   return ans;
 }

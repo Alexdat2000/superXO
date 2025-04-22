@@ -7,14 +7,23 @@ export function UpdateGameTimer(state) {
 
   let timer1 =
     row1.getElementsByTagName("td")[row1.getElementsByTagName("td").length - 1];
+  let timer2 =
+    row2.getElementsByTagName("td")[row2.getElementsByTagName("td").length - 1];
+
+  if (!Number.isInteger(state.time1left)) {
+    if (timer1.classList.contains("log-title")) {
+      row1.removeChild(timer1);
+      row2.removeChild(timer2);
+    }
+    return;
+  }
+
   let minutes1 = Math.floor(state.time1left / (60 * 1000));
   let seconds1 = Math.floor(state.time1left / 1000) % 60;
   timer1.textContent =
     minutes1.toString().padStart(2, "0") +
     ":" +
     seconds1.toString().padStart(2, "0");
-  let timer2 =
-    row2.getElementsByTagName("td")[row2.getElementsByTagName("td").length - 1];
   let minutes2 = Math.floor(state.time2left / (60 * 1000));
   let seconds2 = Math.floor(state.time2left / 1000) % 60;
   timer2.textContent =

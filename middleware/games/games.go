@@ -224,7 +224,20 @@ func place(gameId, playerId, move string) (*boardApi.Board, error) {
 		return nil, InvalidMoveError
 	}
 
-	if len(game.Moves)%4 == 0 {
+	if !game.Time1Left.Valid {
+		queryUpdate := `
+		UPDATE games
+		SET moves = moves || $1,
+		last_move = CURRENT_TIMESTAMP
+		WHERE id = $2
+	`
+		_, err = tx.Exec(queryUpdate, move, gameId)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		return board, tx.Commit()
+	} else if len(game.Moves)%4 == 0 {
 		queryUpdate := `
 		UPDATE games
 		SET moves = moves || $1,

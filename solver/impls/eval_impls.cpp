@@ -14,8 +14,8 @@ int main() {
                                .second);
         board.Place(move.row, move.col);
       } else {
-                Coord move = run_mcts(board, 10'000);
-                board.Place(move.row, move.col);
+        Coord move = run_mcts(board, 100);
+        board.Place(move.row, move.col);
       }
     }
     int win =

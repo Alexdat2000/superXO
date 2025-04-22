@@ -1,19 +1,27 @@
 // Based on https://github.com/The-Ofek-Foundation/UltimateTicTacToe/blob/gh-pages/script.js
 
 #include "algo_ofek.h"
+
+#include <utility>
 #include "../board/board_fast.hpp"
 #include "../coord.hpp"
 
-static std::mt19937 gen_ofek(static_cast<unsigned int>(std::time(0)));
+static std::mt19937 gen_ofek(static_cast<unsigned int>(std::time(nullptr)));
 
-MCTSNode::MCTSNode(shared_ptr<MCTSNode> parent, bool turn,
+MCTSNode::MCTSNode(MCTSNode* parent, bool turn,
                    std::optional<Coord> last_move)
-    : parent(parent), turn(turn), last_move(last_move) {}
+    : parent(parent), turn(turn), last_move(std::move(last_move)) {}
+
+MCTSNode::~MCTSNode() {
+  for (auto x : children) {
+    delete x;
+  }
+}
 
 void MCTSNode::choose_child(Board board, Subs empty_spots, size_t total_empty) {
   if (!has_children) {
     has_children = true;
-    children = mcts_get_children(shared_ptr<MCTSNode>(this), board);
+    children = mcts_get_children(this, board);
     count_unexplored = children.size();
   }
   if (result != 10) {
@@ -52,7 +60,7 @@ void MCTSNode::choose_child(Board board, Subs empty_spots, size_t total_empty) {
         }
       }
     } else {
-      shared_ptr<MCTSNode> best_child = children[0];
+      MCTSNode* best_child = children[0];
       double best_potential = mcts_child_potential(best_child, total_tries);
       double potential;
       for (int i = 1; i < children.size(); i++) {
@@ -93,14 +101,14 @@ void MCTSNode::back_propogate(int simulation) {
   }
 }
 
-double mcts_child_potential(shared_ptr<MCTSNode> child, size_t total_tries) {
+double mcts_child_potential(MCTSNode* child, size_t total_tries) {
   double w = child->misses - child->hits;
   double n = child->total_tries;
   double c = EXPANSION_CONSTANT;
   return w / n + c * sqrt(log(total_tries) / n);
 }
 
-int play_move_empty_left(Board board, Coord last_move, bool xturn,
+int play_move_empty_left(Board& board, Coord last_move, bool xturn,
                          size_t empty_left) {
   int color = xturn ? 1 : 2;
   Coord start(last_move.row - last_move.row % 3,
@@ -130,16 +138,19 @@ bool local_win(Board board, int color, Coord last_move, Coord start) {
 
 bool game_over(Board board, int color, Coord start) {
   for (auto [a, b, c] : gameRows2) {
-    if (board[start.row + a / 3][start.col + a % 3] == color &&
-        board[start.row + b / 3][start.col + b % 3] == color &&
-        board[start.row + c / 3][start.col + c % 3] == color) {
+    if (board[start.row - start.row % 3 + a / 3]
+             [start.col - start.col % 3 + a % 3] == color &&
+        board[start.row - start.row % 3 + b / 3]
+             [start.col - start.col % 3 + b % 3] == color &&
+        board[start.row - start.row % 3 + c / 3]
+             [start.col - start.col % 3 + c % 3] == color) {
       return true;
     }
   }
   return false;
 }
 
-int mcts_simulate(shared_ptr<MCTSNode> parent, Board board, Subs empty_spots,
+int mcts_simulate(MCTSNode* parent, Board board, Subs empty_spots,
                   int total_empty, int play_move_result) {
   if (parent->result != 10) {
     return parent->result;
@@ -162,7 +173,7 @@ int mcts_simulate(shared_ptr<MCTSNode> parent, Board board, Subs empty_spots,
 
   while (!done) {
     next_center = Coord(lm.row % 3 * 3 + 1, lm.col % 3 * 3 + 1);
-    int current_empty = empty_spots[next_center.row][next_center.col];
+    int current_empty = empty_spots[next_center.row / 3][next_center.col / 3];
     if (current_empty != 0) {
       int count = gen_ofek() % current_empty;
 
@@ -219,14 +230,14 @@ int mcts_simulate(shared_ptr<MCTSNode> parent, Board board, Subs empty_spots,
   }
 }
 
-vector<shared_ptr<MCTSNode>> mcts_get_children(shared_ptr<MCTSNode> parent,
+vector<MCTSNode*> mcts_get_children(MCTSNode* parent,
                                                Board board) {
   if (parent->result != 10) {
     return {};
   }
 
   bool turn = parent->turn;
-  vector<shared_ptr<MCTSNode>> children;
+  vector<MCTSNode*> children;
 
   if (parent->last_move) {
     Coord next_center = Coord(parent->last_move->toSubBoardRow() * 3 + 1,
@@ -237,7 +248,7 @@ vector<shared_ptr<MCTSNode>> mcts_get_children(shared_ptr<MCTSNode> parent,
             0) {
           Coord goal =
               Coord(next_center.row - 1 + i / 3, next_center.col - 1 + i % 3);
-          children.push_back(std::make_shared<MCTSNode>(parent, !turn, goal));
+          children.push_back(new MCTSNode(parent, !turn, goal));
         }
       }
       return children;
@@ -246,7 +257,7 @@ vector<shared_ptr<MCTSNode>> mcts_get_children(shared_ptr<MCTSNode> parent,
         Coord c(i);
         if (board[c.row - c.row % 3 + 1][c.col - c.col % 3 + 1] < 3) {
           if (board[c.row][c.col] == 0) {
-            children.push_back(std::make_shared<MCTSNode>(parent, !turn, c));
+            children.push_back(new MCTSNode(parent, !turn, c));
           }
         }
       }
@@ -255,20 +266,20 @@ vector<shared_ptr<MCTSNode>> mcts_get_children(shared_ptr<MCTSNode> parent,
   } else {
     for (int i = 0; i < 81; i++) {
       Coord c(i);
-      children.push_back(std::make_shared<MCTSNode>(parent, !turn, c));
+      children.push_back(new MCTSNode(parent, !turn, c));
     }
     return children;  // if ransom is paid
   }
 }
 
 Coord run_mcts(BoardFast board, size_t iters) {
-  Board mcts_board;
+  Board mcts_board{};
   for (size_t i = 0; i < 9; i++) {
     for (int j = 0; j < 9; j++) {
       mcts_board[i][j] = board.GetMark(i, j);
     }
   }
-  Subs empty_spots;
+  Subs empty_spots{};
   size_t total_empty = 0;
   for (size_t i = 0; i < 9; i++) {
     for (int j = 0; j < 9; j++) {
@@ -278,12 +289,13 @@ Coord run_mcts(BoardFast board, size_t iters) {
       }
     }
   }
-  shared_ptr<MCTSNode> root = std::make_shared<MCTSNode>(
+  auto* root = new MCTSNode(
       nullptr, board.CurrentPlayer() == 1,
       board.LastMove() == -1 ? std::nullopt
                              : make_optional(Coord(board.LastMove())));
 
-  for (size_t i = 0; i < iters; i++) {
+  time_t start = clock();
+  while ((double)(clock() - start) / CLOCKS_PER_SEC < 1) {
     root->choose_child(mcts_board, empty_spots, total_empty);
   }
 

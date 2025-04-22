@@ -154,7 +154,7 @@ func matchmake(gameId, playerId string) error {
 		time_2_left = $3
 	WHERE id = $2 AND (player2 IS NULL OR player2 = '')
 `
-	result, err := DB.Exec(query, playerId, gameId, time_base.Int32, time_delta.Int32, time.Now().UnixMilli())
+	result, err := DB.Exec(query, playerId, gameId, time_base.Int32*1000, time_delta.Int32*1000, time.Now().UnixMilli())
 	if err != nil {
 		return err
 	}
@@ -230,7 +230,8 @@ func place(gameId, playerId, move string) (*boardApi.Board, error) {
 		SET moves = moves || $1,
 		last_move = CURRENT_TIMESTAMP,
 		time_1_left = $3,
-		time_1_at = $4
+		time_1_at = $4,
+		time_2_at = $4
 		WHERE id = $2
 	`
 		_, err = tx.Exec(queryUpdate, move, gameId, int64(game.Time1Left.Int32)-(time.Now().UnixMilli()-game.Time1At.Int64), time.Now().UnixMilli())
@@ -244,6 +245,7 @@ func place(gameId, playerId, move string) (*boardApi.Board, error) {
 		SET moves = moves || $1,
 		last_move = CURRENT_TIMESTAMP,
 		time_2_left = $3,
+		time_1_at = $4,
 		time_2_at = $4
 		WHERE id = $2
 	`

@@ -1,5 +1,3 @@
-import { UpdateBoard } from "./board-layout";
-import { UpdateGameTimer } from "./game-timer";
 import {
     CoordinatesToCoord,
     StringToCoord,
@@ -17,13 +15,13 @@ const gameRows = [
 ]
 
 export class Board {
-    constructor(moves, time_limit = null, time_delta = 0) {
+    constructor(moves, time_base = null, time_delta = 0) {
         // main info
         this.moves = moves
         this.gameState = "init"
-        
+
         this.time1at = this.time2at = Date.now()
-        this.time1left = this.time2left = time_limit
+        this.time1left = this.time2left = time_base
         this.time_delta = time_delta
 
         // calculated
@@ -166,26 +164,6 @@ export class Board {
     }
 
     UpdateTimer() {
-        if (this.currentPlayer == 'X') {
-            const new_time = Date.now();
-            this.time1left = Math.max(0, this.time1left - (new_time - this.time1at));
-            this.time1at = new_time;
-            if (this.time1left == 0) {
-                this.winner = 'O';
-                UpdateBoard(this);
-            } else {
-                UpdateGameTimer(this)
-            }
-        } else {
-            const new_time = Date.now();
-            this.time2left = Math.max(0, this.time2left - (new_time - this.time2at));
-            this.time2at = new_time;
-            if (this.time2left == 0) {
-                this.winner = 'X';
-                UpdateBoard(this);
-            } else {
-                UpdateGameTimer(this)
-            }
-        }
+        throw new Error("Shouldn't be used as a base class");
     }
 }

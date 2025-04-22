@@ -63,6 +63,7 @@ func HandleGetGame(w http.ResponseWriter, r *http.Request) {
 				Time2At:       &game.Time2At.Int64,
 				Time2Left:     &game.Time2Left.Int32,
 			})
+			println(msg)
 			_, _ = fmt.Fprintf(w, string(msg))
 		}
 	}

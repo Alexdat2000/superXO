@@ -1,5 +1,6 @@
 import { Board } from "./board-logic";
 import { UpdateBoard } from "./board-layout";
+import { UpdateGameTimer } from "./game-timer";
 import { GetParameterByName } from "./utils"
 
 class LocalBoard extends Board {
@@ -20,6 +21,33 @@ class LocalBoard extends Board {
             this.gameState = "end";
         }
         UpdateBoard(this);
+    }
+
+    UpdateTimer() {
+        if (this.time1left === null) {
+            return
+        }
+        if (this.currentPlayer == 'X') {
+            const new_time = Date.now();
+            this.time1left = Math.max(0, this.time1left - (new_time - this.time1at));
+            this.time1at = new_time;
+            if (this.time1left == 0) {
+                this.winner = 'O';
+                UpdateBoard(this);
+            } else {
+                UpdateGameTimer(this)
+            }
+        } else {
+            const new_time = Date.now();
+            this.time2left = Math.max(0, this.time2left - (new_time - this.time2at));
+            this.time2at = new_time;
+            if (this.time2left == 0) {
+                this.winner = 'X';
+                UpdateBoard(this);
+            } else {
+                UpdateGameTimer(this);
+            }
+        }
     }
 }
 

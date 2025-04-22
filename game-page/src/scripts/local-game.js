@@ -1,5 +1,6 @@
 import { Board } from "./board-logic";
 import { UpdateBoard } from "./board-layout";
+import { GetParameterByName } from "./utils"
 
 class LocalBoard extends Board {
     MakeMove(coord) {
@@ -23,7 +24,15 @@ class LocalBoard extends Board {
 }
 
 export function StartLocalGame() {
-    let state = new LocalBoard("", 300 * 1000, 2000)
+    const time = GetParameterByName("time");
+    const parts = time.split(":");
+    let base = 300;
+    let add = 3;
+    if (parts.length == 2) {
+        base = parseInt(parts[0]);
+        add = parseInt(parts[1]);
+    }
+    let state = new LocalBoard("", base * 1000, add * 1000)
     state.gameState = "player"
     UpdateBoard(state);
 

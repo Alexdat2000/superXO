@@ -14,7 +14,7 @@ export async function GetGameFromServer(gameId) {
 
 export async function SendMoveToServer(gameId, move) {
     try {
-        const response = await fetch('/api/place?id=' + gameId + "&move=" + move);;
+        const response = await fetch('/api/place?id=' + gameId + "&move=" + move);
         if (!response.ok) {
             alert(response.json()["error"]);
         }

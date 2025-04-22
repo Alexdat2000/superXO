@@ -14,6 +14,10 @@ type GetGameResponce struct {
 	Error         string `json:"error"`
 	GameStatus    string `json:"game_status"`
 	GameInitiated bool   `json:"game_initiated"`
+	Time1At       *int64 `json:"time_1_at,omitempty"`
+	Time1Left     *int32 `json:"time_1_left,omitempty"`
+	Time2At       *int64 `json:"time_2_at,omitempty"`
+	Time2Left     *int32 `json:"time_2_left,omitempty"`
 }
 
 func returnError(w http.ResponseWriter, code int, err string) {
@@ -42,12 +46,25 @@ func HandleGetGame(w http.ResponseWriter, r *http.Request) {
 		returnError(w, http.StatusInternalServerError, "Error getting game: "+err.Error())
 	} else {
 		w.WriteHeader(http.StatusOK)
-		msg, _ := json.Marshal(GetGameResponce{
-			Moves:         game.Moves,
-			GameStatus:    status,
-			GameInitiated: game.Player1.Valid && game.Player2.Valid,
-		})
-		_, _ = fmt.Fprintf(w, string(msg))
+		if !game.Time1At.Valid {
+			msg, _ := json.Marshal(GetGameResponce{
+				Moves:         game.Moves,
+				GameStatus:    status,
+				GameInitiated: game.Player1.Valid && game.Player2.Valid,
+			})
+			_, _ = fmt.Fprintf(w, string(msg))
+		} else {
+			msg, _ := json.Marshal(GetGameResponce{
+				Moves:         game.Moves,
+				GameStatus:    status,
+				GameInitiated: game.Player1.Valid && game.Player2.Valid,
+				Time1At:       &game.Time1At.Int64,
+				Time1Left:     &game.Time1Left.Int32,
+				Time2At:       &game.Time2At.Int64,
+				Time2Left:     &game.Time2Left.Int32,
+			})
+			_, _ = fmt.Fprintf(w, string(msg))
+		}
 	}
 }
 
@@ -64,7 +81,7 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 	playerId := playerIdCookie.Value
 
 	id := generateRandomString(10)
-	err = createGame(id, playerId, r.URL.Query().Get("bot"))
+	err = createGame(id, playerId, r.URL.Query().Get("bot"), r.URL.Query().Get("time"))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		msg, _ := json.Marshal(MaybeErrorResponce{Error: "Error creating game: " + err.Error()})

@@ -12,7 +12,7 @@ int main() {
                 Coord move = Coord(minimax2(board, board.CurrentPlayer() == 1, 8, INT_MIN, INT_MAX, clock()).second);
                 board.Place(move.row, move.col);
             } else {
-                Coord move = Coord(minimax(board, board.CurrentPlayer() == 1, 8, INT_MIN, INT_MAX, clock()).second);
+                Coord move = Coord(minimax2(board, board.CurrentPlayer() == 1, 8, INT_MIN, INT_MAX, clock()).second);
                 board.Place(move.row, move.col);
             }
         } 

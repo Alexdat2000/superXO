@@ -10,7 +10,7 @@ int main() {
   while (true) {
     vector<int> cur = {0, 0, 0, 0};
     for (auto& i : cur) {
-      i = rand() % 3;
+      i = rand() % 5;
     }
     cur[0] *= -1;
     cur[3] *= -1;

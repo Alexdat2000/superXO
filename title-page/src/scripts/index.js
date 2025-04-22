@@ -1,7 +1,7 @@
-import "../styles/styles.css"
+import "../styles/styles.css";
 
-import { EnsureUserId } from "./cookie"
+import { EnsureUserId } from "./cookie";
 
 window.onload = function () {
-    EnsureUserId()
-}
+  EnsureUserId();
+};

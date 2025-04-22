@@ -106,9 +106,15 @@ class BoardFast {
     return (boardState[field] >> (2 * cell)) & 3;
   }
 
+  [[nodiscard]] uint32_t GetMark(size_t row, size_t col) const {
+    return GetMarkInSubboard(row / 3 * 3 + col / 3, row % 3 * 3 + col % 3);
+  }
+
   [[nodiscard]] uint32_t Winner() const { return winner; }
 
   [[nodiscard]] uint32_t CurrentPlayer() const { return currentPlayer; }
+
+  [[nodiscard]] size_t LastMove() const { return last_move; }
 
  private:
   uint32_t currentPlayer = 1;

@@ -5,5 +5,5 @@
 #include "impls/random.cpp"
 
 std::string Bot1Move(BoardFast board) {
-    return Coord(get_random_move(board)).str;
+  return Coord(get_random_move(board)).str;
 }

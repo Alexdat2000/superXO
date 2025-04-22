@@ -8,8 +8,7 @@
 
 static std::mt19937 gen_ofek(static_cast<unsigned int>(std::time(nullptr)));
 
-MCTSNode::MCTSNode(MCTSNode* parent, bool turn,
-                   std::optional<Coord> last_move)
+MCTSNode::MCTSNode(MCTSNode* parent, bool turn, std::optional<Coord> last_move)
     : parent(parent), turn(turn), last_move(std::move(last_move)) {}
 
 MCTSNode::~MCTSNode() {
@@ -231,8 +230,7 @@ int mcts_simulate(MCTSNode* parent, Board& board, Subs& empty_spots,
   }
 }
 
-vector<MCTSNode*> mcts_get_children(MCTSNode* parent,
-                                               Board& board) {
+vector<MCTSNode*> mcts_get_children(MCTSNode* parent, Board& board) {
   if (parent->result != 10) {
     return {};
   }
@@ -290,10 +288,10 @@ Coord run_mcts(BoardFast board, int iters) {
       }
     }
   }
-  auto* root = new MCTSNode(
-      nullptr, board.CurrentPlayer() == 1,
-      board.LastMove() == -1 ? std::nullopt
-                             : make_optional(Coord(board.LastMove())));
+  auto* root = new MCTSNode(nullptr, board.CurrentPlayer() == 1,
+                            board.LastMove() == -1
+                                ? std::nullopt
+                                : make_optional(Coord(board.LastMove())));
 
   time_t start = clock();
   while ((double)(clock() - start) / CLOCKS_PER_SEC < 1) {
@@ -321,10 +319,12 @@ Coord run_mcts(BoardFast board, int iters) {
   // return ans;
 
   // Best ratio
-  double best_ratio = (double) root->children[0]->hits / (root->children[0]->hits + root->children[0]->misses);
+  double best_ratio = (double)root->children[0]->hits /
+                      (root->children[0]->hits + root->children[0]->misses);
   Coord ans = *root->children[0]->last_move;
   for (int i = 1; i < root->children.size(); i++) {
-    double ratio =(double) root->children[i]->hits / (root->children[i]->hits + root->children[i]->misses);
+    double ratio = (double)root->children[i]->hits /
+                   (root->children[i]->hits + root->children[i]->misses);
     if (ratio > best_ratio) {
       best_ratio = ratio;
       ans = *root->children[i]->last_move;

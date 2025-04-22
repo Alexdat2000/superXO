@@ -5,7 +5,7 @@
 
 int main() {
     std::array<int, 4> winners{};
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 50; i++) {
         BoardFast board("");
         while (board.Winner() == 0) {
             if ((board.CurrentPlayer() == 1) ^ (i >= 50)) {

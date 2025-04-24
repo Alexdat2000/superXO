@@ -165,6 +165,7 @@ struct MCTSNode {
         best = children[i];
       }
     }
+    return best;
   }
 };
 

@@ -106,6 +106,10 @@ class BoardFast {
     return (boardState[field] >> (2 * cell)) & 3;
   }
 
+  [[nodiscard]] uint32_t GetSubboard(size_t field) const {
+    return boardState[field];
+  }
+
   [[nodiscard]] uint32_t GetMark(size_t row, size_t col) const {
     return GetMarkInSubboard(row / 3 * 3 + col / 3, row % 3 * 3 + col % 3);
   }

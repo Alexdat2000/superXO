@@ -225,60 +225,54 @@ std::pair<int, size_t> minimax2(BoardFast board, bool maximizing_player,
                                 int depth, int alpha, int beta,
                                 clock_t time_start) {
   if (board.Winner() == 1) {
-    return {
-      100'000, 0};
-    }
-    else if (board.Winner() == 2) {
-      return {
-        -100'000, 0};
-      }
-      else if (board.Winner() == 3) {
-        return {0, 0};
-      }
-      else if (depth == 0) {
-        return {calculate_score_better(board), 0};
-      }
-      if ((clock() - time_start) / (double)CLOCKS_PER_SEC > 1.0) {
-        return {calculate_score_better(board), 0};
-      }
+    return {100000, 0};
+  } else if (board.Winner() == 2) {
+    return {-100000, 0};
+  } else if (board.Winner() == 3) {
+    return {0, 0};
+  } else if (depth == 0) {
+    return {calculate_score_better(board), 0};
+  }
+  if ((clock() - time_start) / (double)CLOCKS_PER_SEC > 1.0) {
+    return {calculate_score_better(board), 0};
+  }
 
-      if (maximizing_player) {
-        int best_score = INT_MIN;
-        size_t move = 0;
-        auto opts = board.calculateAvailableMoves();
-        std::shuffle(opts.begin(), opts.end(), gen_minimax2);
-        for (int i : opts) {
-          auto cur = board;
-          cur.Place(i / 9, i % 9);
-          auto [score, _] =
-              minimax2(cur, false, depth - 1, alpha, beta, time_start);
-          if (score > best_score) {
-            best_score = score;
-            move = i;
-          }
-          if (best_score >= beta) {
-            break;
-          }
-          alpha = max(alpha, best_score);
-        }
-        return {best_score, move};
-      } else {
-        int best_score = INT_MAX;
-        size_t move = 0;
-        for (int i : board.calculateAvailableMoves()) {
-          auto cur = board;
-          cur.Place(i / 9, i % 9);
-          auto [score, _] =
-              minimax2(cur, true, depth - 1, alpha, beta, time_start);
-          if (score < best_score) {
-            best_score = score;
-            move = i;
-          }
-          if (best_score <= alpha) {
-            break;
-          }
-          beta = min(beta, best_score);
-        }
-        return {best_score, move};
+  if (maximizing_player) {
+    int best_score = INT_MIN;
+    size_t move = 0;
+    auto opts = board.calculateAvailableMoves();
+    std::shuffle(opts.begin(), opts.end(), gen_minimax2);
+    for (int i : opts) {
+      auto cur = board;
+      cur.Place(i / 9, i % 9);
+      auto [score, _] =
+          minimax2(cur, false, depth - 1, alpha, beta, time_start);
+      if (score > best_score) {
+        best_score = score;
+        move = i;
       }
+      if (best_score >= beta) {
+        break;
+      }
+      alpha = max(alpha, best_score);
     }
+    return {best_score, move};
+  } else {
+    int best_score = INT_MAX;
+    size_t move = 0;
+    for (int i : board.calculateAvailableMoves()) {
+      auto cur = board;
+      cur.Place(i / 9, i % 9);
+      auto [score, _] = minimax2(cur, true, depth - 1, alpha, beta, time_start);
+      if (score < best_score) {
+        best_score = score;
+        move = i;
+      }
+      if (best_score <= alpha) {
+        break;
+      }
+      beta = min(beta, best_score);
+    }
+    return {best_score, move};
+  }
+}

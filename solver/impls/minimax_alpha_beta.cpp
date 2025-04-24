@@ -40,11 +40,11 @@ int calculate_score(BoardFast board) {
   return score;
 }
 
-
 std::mt19937 gen_minimax(static_cast<unsigned int>(std::time(0)));
 
 std::pair<int, size_t> minimax(BoardFast board, bool maximizing_player,
-                               int depth, int alpha, int beta, clock_t time_start) {
+                               int depth, int alpha, int beta,
+                               clock_t time_start) {
   if (board.Winner() == 1) {
     return {SCORE_WIN, 0};
   } else if (board.Winner() == 2) {
@@ -54,7 +54,7 @@ std::pair<int, size_t> minimax(BoardFast board, bool maximizing_player,
   } else if (depth == 0) {
     return {calculate_score(board), 0};
   }
-  if ((clock() - time_start) / (double) CLOCKS_PER_SEC > 1.0) {
+  if ((clock() - time_start) / (double)CLOCKS_PER_SEC > 1.0) {
     return {calculate_score(board), 0};
   }
 

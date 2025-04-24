@@ -17,7 +17,7 @@ struct MCTSNode {
   MCTSNode* parent;
   BoardFast board;
 
-  size_t hits = 0, misses = 0, total_tries = 0;
+  int hits = 0, misses = 0, total_tries = 0;
   bool has_children = false;
   std::vector<MCTSNode*> children;
   size_t count_unexplored = 0, result = 0;
@@ -53,6 +53,8 @@ struct MCTSNode {
           }
 
           child->back_propagate(child->mcts_simulate());
+          count_unexplored--;
+          break;
         }
       }
     } else {
@@ -91,10 +93,18 @@ struct MCTSNode {
   double get_certainty() {
     MCTSNode* best_child = most_tried_child();
     MCTSNode* second_best_child = second_most_tried_child(best_child);
-    double ratio = second_best_child->total_tries / best_child->total_tries;
-    double ratio_wins = best_child->hits < best_child->misses
-                            ? (best_child->hits / best_child->misses) * 2
-                            : (best_child->misses / best_child->hits) * 3;
+    if (second_best_child->total_tries == 0) {
+      return 0;
+    }
+    double ratio = static_cast<double>(second_best_child->total_tries) /
+                   best_child->total_tries;
+    if (best_child->hits == 0 && best_child->misses == 0) {
+      return ratio;
+    }
+    double ratio_wins =
+        best_child->hits < best_child->misses
+            ? (static_cast<double>(best_child->hits) / best_child->misses) * 2
+            : (static_cast<double>(best_child->misses) / best_child->hits) * 3;
     return min(ratio, ratio_wins);
   }
 
@@ -114,6 +124,8 @@ struct MCTSNode {
     double n = total_tries;
     double c = EXPANSION_CONSTANT;
 
+    if (n == 0)
+      return std::numeric_limits<double>::infinity();
     return w / n + c * sqrt(log(t) / n);
   }
 
@@ -179,7 +191,7 @@ Coord run_mcts(BoardFast board) {
     return Coord(moves[0]);
   }
 
-  MCTSNode* root = new MCTSNode(nullptr, board);
+  auto* root = new MCTSNode(nullptr, board);
   clock_t start = clock();
   while ((double)(clock() - start) / CLOCKS_PER_SEC < 1) {
     for (int _ = 0; _ < 2000; _++) {
@@ -191,5 +203,7 @@ Coord run_mcts(BoardFast board) {
       break;
     }
   }
-  return Coord(root->most_tried_child()->board.LastMove());
+  auto ans = Coord(root->most_tried_child()->board.LastMove());
+  delete root;
+  return ans;
 }

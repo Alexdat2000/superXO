@@ -9,12 +9,12 @@ int main() {
     BoardFast board("");
     while (board.Winner() == 0) {
       if ((board.CurrentPlayer() == 1) ^ (i >= 50)) {
+        Coord move = run_mcts(board);
+        board.Place(move.row, move.col);
+      } else {
         Coord move = Coord(minimax2(board, board.CurrentPlayer() == 1, 8,
                                     INT_MIN, INT_MAX, clock())
                                .second);
-        board.Place(move.row, move.col);
-      } else {
-        Coord move = run_mcts(board);
         board.Place(move.row, move.col);
       }
     }

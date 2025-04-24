@@ -30,6 +30,7 @@ struct MCTSNode {
     }
   }
 
+  // Algorithm
   void choose_child() {
     if (board.Winner() != 0) {
       result = board.Winner();
@@ -51,12 +52,38 @@ struct MCTSNode {
             continue;
           }
 
-          child->back_propagate(mcts_simulate(child));
+          child->back_propagate(child->mcts_simulate());
         }
       }
     } else {
       MCTSNode* best_child = best_potential_child();
       best_child->choose_child();
+    }
+  }
+
+  int mcts_simulate() {
+    if (board.Winner() != 0) {
+      return board.Winner();
+    }
+
+    auto new_board = board;
+    while (new_board.Winner() == 0) {
+      auto moves = new_board.calculateAvailableMoves();
+      auto move = moves[gen_mcts() % moves.size()];
+      new_board.Place(move / 9, move % 9);
+    }
+    return new_board.Winner();
+  }
+
+  void back_propagate(int result) {
+    total_tries++;
+    if (result == board.CurrentPlayer()) {
+      hits++;
+    } else if (result == 3 - board.CurrentPlayer()) {
+      misses++;
+    }
+    if (parent != nullptr) {
+      parent->back_propagate(result);
     }
   }
 
@@ -91,6 +118,15 @@ struct MCTSNode {
   }
 
   // Child selectors
+  vector<MCTSNode*> mcts_get_children() {
+    vector<MCTSNode*> children;
+    for (auto x : board.calculateAvailableMoves()) {
+      children.push_back(new MCTSNode(this, board));
+      children.back()->board.Place(Coord(x).row, Coord(x).col);
+    }
+    return children;
+  }
+
   MCTSNode* most_tried_child() {
     size_t most = children[0]->total_tries;
     MCTSNode* best = children[0];
@@ -132,6 +168,7 @@ struct MCTSNode {
   }
 };
 
+// Entry point
 Coord run_mcts(BoardFast board) {
   auto moves = board.calculateAvailableMoves();
   if (moves.empty()) {

@@ -25,7 +25,7 @@ struct MCTSNode {
   size_t count_unexplored = 0, result = 0;
 
   MCTSNode(MCTSNode* parent, BoardFastest board)
-      : parent(parent), board(board){};
+      : parent(parent), board(board) {};
 
   ~MCTSNode() {
     for (auto x : children) {
@@ -73,8 +73,7 @@ struct MCTSNode {
 
     auto new_board = board;
     while (new_board.Winner() == 0) {
-      auto moves = new_board.calculateAvailableMoves();
-      auto move = moves[gen_mcts() % moves.size()];
+      int move = new_board.GetRandomAvailableMove();
       new_board.Place(move / 9, move % 9);
     }
     return new_board.Winner();

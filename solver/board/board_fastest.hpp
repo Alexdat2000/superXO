@@ -5,6 +5,8 @@
 
 using namespace std;
 
+mt19937 gen_board(static_cast<unsigned int>(time(nullptr)));
+
 const vector<vector<size_t>> game_rows_custom = {
     {21, 4161, 65793},          {21, 16644},
     {21, 66576, 4368},          {1344, 4161},
@@ -24,9 +26,9 @@ class BoardFastest {
   }
 
  private:
- static inline uint32_t getMark(uint32_t board, size_t cell) {
-  return (board >> (2 * cell)) & 3;
-}
+  static inline uint32_t getMark(uint32_t board, size_t cell) {
+    return (board >> (2 * cell)) & 3;
+  }
 
   uint32_t calcSubWinner(uint32_t sub_board, int changed_index) {
     uint32_t local = 0;
@@ -86,7 +88,53 @@ class BoardFastest {
     return available;
   }
 
+  int GetRandomAvailableMove() {
+    if (winner != 0) {
+      return -1;
+    }
+    if (last_move == -1) {
+      return gen_board() % 81;
+    }
+
+    size_t tarSubBoard = last_move / 9 % 3 * 3 + last_move % 3;
+    if (getMark(subWinners, tarSubBoard)) {
+      int take = gen_board() % (81 - move_cnt) + 1;
+      for (int row = 0; row < 9; row++) {
+        for (int col = 0; col < 9; col++) {
+          size_t board = row / 3 * 3 + col / 3;
+          size_t in_board = row % 3 * 3 + col % 3;
+          if (getMark(boardState[board], in_board) == 0 &&
+              getMark(subWinners, board) == 0) {
+            take--;
+            if (take == 0) {
+              return row * 9 + col;
+            }
+          }
+        }
+      }
+      return -1;
+    } else {
+      int av = __builtin_popcount(
+          (boardState[tarSubBoard] | (boardState[tarSubBoard] >> 1)) & 0x15555);
+      int take = gen_board() % av + 1;
+      for (int row = 0; row < 3; row++) {
+        for (int col = 0; col < 3; col++) {
+          if (getMark(boardState[tarSubBoard], row * 3 + col) == 0) {
+            av--;
+            if (av == 0) {
+              return (tarSubBoard / 3 * 3 + row) * 9 +
+                     (tarSubBoard % 3 * 3 + col);
+            }
+          }
+        }
+      }
+      return -1;
+    }
+    return -1;
+  }
+
   void Place(size_t row, size_t col) {
+    move_cnt++;
     size_t sub_board = row / 3 * 3 + col / 3;
     size_t inside = row % 3 * 3 + col % 3;
     boardState[sub_board] += (currentPlayer << (inside * 2));
@@ -127,6 +175,7 @@ class BoardFastest {
   uint32_t subWinners = 0;
   uint32_t winner = 0;
   size_t last_move = -1;
+  size_t move_cnt = 0;
 };
 
 #endif  // BOARD_FASTEST_HPP

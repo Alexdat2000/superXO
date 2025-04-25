@@ -3,13 +3,13 @@
 #include <optional>
 #include <vector>
 
-#include "../board/board_fast.hpp"
+#include "../board/board_fastest.hpp"
 #include "../coord.hpp"
 
 namespace better_mcts {
 
 constexpr double ERROR_THRESHOLD = 0.05;
-constexpr double CERTAINTY_THRESHOLD = 0.95;
+constexpr double CERTAINTY_THRESHOLD = 0.9;
 constexpr double EXPANSION_CONSTANT = 1.03125;
 
 static std::mt19937 gen_mcts(static_cast<unsigned int>(std::time(nullptr)));
@@ -17,14 +17,15 @@ static std::mt19937 gen_mcts(static_cast<unsigned int>(std::time(nullptr)));
 struct MCTSNode {
  public:
   MCTSNode* parent;
-  BoardFast board;
+  BoardFastest board;
 
   int hits = 0, misses = 0, total_tries = 0;
   bool has_children = false;
   std::vector<MCTSNode*> children;
   size_t count_unexplored = 0, result = 0;
 
-  MCTSNode(MCTSNode* parent, BoardFast board) : parent(parent), board(board) {};
+  MCTSNode(MCTSNode* parent, BoardFastest board)
+      : parent(parent), board(board){};
 
   ~MCTSNode() {
     for (auto x : children) {
@@ -186,7 +187,7 @@ struct MCTSNode {
 }  // namespace better_mcts
 
 // Entry point
-Coord better_run_mcts(BoardFast board) {
+Coord better_run_mcts(BoardFastest board) {
   auto moves = board.calculateAvailableMoves();
   if (moves.empty()) {
     abort();

@@ -62,6 +62,7 @@ export function StartLocalGame() {
   }
   let state = new LocalBoard("", base * 1000, add * 1000);
   state.gameState = "player";
+  state.gameMode = "local";
   UpdateBoard(state);
 
   let timerInterval = setInterval(() => {

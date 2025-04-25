@@ -16,6 +16,7 @@ export class Board {
     // main info
     this.moves = moves;
     this.gameState = "init";
+    this.gameMode = "";
 
     this.time1at = this.time2at = Date.now();
     this.time1left = this.time2left = time_base;

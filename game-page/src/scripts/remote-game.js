@@ -57,6 +57,7 @@ class RemoteBoard extends Board {
 export function StartRemoteGame(gameId) {
   state = new RemoteBoard("");
   state.gameId = gameId;
+  state.gameMode = "remote";
   UpdateBoard(state);
   gameInitiationLoop(gameId);
 

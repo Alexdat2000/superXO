@@ -33,10 +33,11 @@ class BoardFastest {
   uint32_t calcSubWinner(uint32_t sub_board, int changed_index) {
     uint32_t local = 0;
     for (const auto& mask : game_rows_custom[changed_index]) {
-      if ((sub_board & mask) == mask) {
+      if ((sub_board & mask) == mask && (sub_board & (mask << 1)) == 0) {
         local = 1;
         break;
-      } else if ((sub_board & (mask << 1)) == (mask << 1)) {
+      } else if ((sub_board & (mask << 1)) == (mask << 1) &&
+                 (sub_board & mask) == 0) {
         local = 2;
         break;
       }

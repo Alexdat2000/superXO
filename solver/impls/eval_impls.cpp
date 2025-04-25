@@ -12,12 +12,22 @@ int main() {
     while (board.Winner() == 0) {
       if ((board.CurrentPlayer() == 1) ^ (i >= 50)) {
         Coord move = better_run_mcts(board2);
+        auto moves = board.calculateAvailableMoves();
+        if (find(moves.begin(), moves.end(), move.index) == moves.end()) {
+          cout << "Incorrect move: " << move.str;
+          return 0;
+        }
         board.Place(move.row, move.col);
         board2.Place(move.row, move.col);
         std::cout << move.str;
         cout.flush();
       } else {
         Coord move = run_mcts(board);
+        auto moves = board.calculateAvailableMoves();
+        if (find(moves.begin(), moves.end(), move.index) == moves.end()) {
+          std::cout << std::endl << "Incorrect move: " << move.str << std::endl;
+          return 0;
+        }
         board.Place(move.row, move.col);
         board2.Place(move.row, move.col);
         std::cout << move.str;

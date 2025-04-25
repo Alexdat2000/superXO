@@ -16,6 +16,13 @@ header {
   display: flex;
   justify-content: left;
   align-items: center;
+  gap: 40px;
+  }
+  
+  .header-fast-link {
+    color: #ccc;
+    font-family: Arial, sans-serif;
+    font-size: 20px;
 }
 
 main {

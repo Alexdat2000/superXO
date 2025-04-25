@@ -1,3 +1,4 @@
+#pragma once
 #include "../board/board_fast.hpp"
 
 const int SCORE_TILE_CLAIMED = 20;

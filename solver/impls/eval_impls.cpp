@@ -2,7 +2,7 @@
 #include "../board/board_fastest.hpp"
 #include "../coord.hpp"
 #include "mcts.cpp"
-#include "mcts_improved_exploration.cpp"
+#include "mcts_improved.cpp"
 
 int main() {
   std::array<int, 4> winners{};
@@ -22,7 +22,7 @@ int main() {
         std::cout << move.str;
         cout.flush();
       } else {
-        Coord move = run_mcts(board);
+        Coord move = better_run_mcts(board2);
         auto moves = board.calculateAvailableMoves();
         if (find(moves.begin(), moves.end(), move.index) == moves.end()) {
           std::cout << std::endl << "Incorrect move: " << move.str << std::endl;

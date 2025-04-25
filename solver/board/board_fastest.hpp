@@ -1,3 +1,5 @@
+#pragma GCC target("sse4.2")
+
 #ifndef BOARD_FASTEST_HPP
 #define BOARD_FASTEST_HPP
 

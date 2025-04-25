@@ -18,15 +18,14 @@ int main() {
         const char* moves_param = req.url_params.get("moves");
         const char* bot_level_param = req.url_params.get("bot");
         std::string moves = (moves_param != nullptr) ? moves_param : "";
-        auto b = BoardFast(moves);
         std::string bot_level =
             (bot_level_param != nullptr) ? bot_level_param : "3";
         if (bot_level == "1") {
-          return Bot1Move(b);
+          return Bot1Move(moves);
         } else if (bot_level == "2") {
-          return Bot2Move(b);
+          return Bot2Move(moves);
         } else {
-          return Bot3Move(b);
+          return Bot3Move(moves);
         }
       });
 

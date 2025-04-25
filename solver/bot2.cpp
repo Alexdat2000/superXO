@@ -4,9 +4,8 @@
 #include "coord.hpp"
 #include "impls/minimax_alpha_beta.cpp"
 
-std::mt19937 gen2(static_cast<unsigned int>(std::time(0)));
-
-std::string Bot2Move(BoardFast board) {
+std::string Bot2Move(std::string moves) {
+  BoardFast board(moves);
   auto ans =
       minimax(board, board.CurrentPlayer() == 1, 8, INT_MIN, INT_MAX, clock())
           .second;

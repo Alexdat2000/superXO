@@ -23,7 +23,7 @@ type GetGameResponce struct {
 func returnError(w http.ResponseWriter, code int, err string) {
 	w.WriteHeader(code)
 	msg, _ := json.Marshal(GetGameResponce{Error: err})
-	_, _ = fmt.Fprintf(w, string(msg))
+	_, _ = fmt.Fprint(w, string(msg))
 }
 
 func HandleGetGame(w http.ResponseWriter, r *http.Request) {
@@ -40,7 +40,7 @@ func HandleGetGame(w http.ResponseWriter, r *http.Request) {
 	playerId := playerIdCookie.Value
 
 	game, status, err := getGame(gameId, playerId)
-	if errors.Is(err, GameNotFoundError) {
+	if errors.Is(err, ErrGameNotFound) {
 		returnError(w, http.StatusNotFound, "Game not found")
 	} else if err != nil {
 		returnError(w, http.StatusInternalServerError, "Error getting game: "+err.Error())
@@ -52,7 +52,7 @@ func HandleGetGame(w http.ResponseWriter, r *http.Request) {
 				GameStatus:    status,
 				GameInitiated: game.Player1.Valid && game.Player2.Valid,
 			})
-			_, _ = fmt.Fprintf(w, string(msg))
+			_, _ = fmt.Fprint(w, string(msg))
 		} else {
 			msg, _ := json.Marshal(GetGameResponce{
 				Moves:         game.Moves,
@@ -64,7 +64,7 @@ func HandleGetGame(w http.ResponseWriter, r *http.Request) {
 				Time2Left:     &game.Time2Left.Int32,
 			})
 			println(msg)
-			_, _ = fmt.Fprintf(w, string(msg))
+			_, _ = fmt.Fprint(w, string(msg))
 		}
 	}
 }
@@ -86,7 +86,7 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		msg, _ := json.Marshal(MaybeErrorResponce{Error: "Error creating game: " + err.Error()})
-		_, _ = fmt.Fprintf(w, string(msg))
+		_, _ = fmt.Fprint(w, string(msg))
 		return
 	}
 	http.Redirect(w, r, "/game?id="+id, http.StatusSeeOther)
@@ -99,39 +99,39 @@ func HandlePlace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	move := r.URL.Query().Get("move")
-	if !('A' <= move[0] && move[0] <= 'I' && '1' <= move[1] && move[1] <= '9') {
+	if move[0] < 'A' || move[0] > 'I' || '1' > move[1] || move[1] > '9' {
 		w.WriteHeader(http.StatusBadRequest)
 		msg, _ := json.Marshal(MaybeErrorResponce{Error: "Move to non-existing cell: " + move})
-		_, _ = fmt.Fprintf(w, string(msg))
+		_, _ = fmt.Fprint(w, string(msg))
 		return
 	}
 	playerIdCookie, err := r.Cookie("userId")
 	if err != nil || !validateId(playerIdCookie.Value) {
 		w.WriteHeader(http.StatusBadRequest)
 		msg, _ := json.Marshal(MaybeErrorResponce{Error: "Invalid player id"})
-		_, _ = fmt.Fprintf(w, string(msg))
+		_, _ = fmt.Fprint(w, string(msg))
 		return
 	}
 	playerId := playerIdCookie.Value
 
 	board, err := place(gameId, playerId, move)
-	if errors.Is(err, GameNotFoundError) {
+	if errors.Is(err, ErrGameNotFound) {
 		w.WriteHeader(http.StatusNotFound)
 		msg, _ := json.Marshal(MaybeErrorResponce{Error: "Game not found"})
-		_, _ = fmt.Fprintf(w, string(msg))
-	} else if errors.Is(err, NoAccessToPlaceError) {
+		_, _ = fmt.Fprint(w, string(msg))
+	} else if errors.Is(err, ErrNoAccessToPlace) {
 		w.WriteHeader(http.StatusBadRequest)
 		msg, _ := json.Marshal(MaybeErrorResponce{Error: "Player is not in the game"})
-		_, _ = fmt.Fprintf(w, string(msg))
-	} else if errors.Is(err, WrongTurnError) {
+		_, _ = fmt.Fprint(w, string(msg))
+	} else if errors.Is(err, ErrWrongTurn) {
 		w.WriteHeader(http.StatusBadRequest)
 		msg, _ := json.Marshal(MaybeErrorResponce{Error: "Wrong turn"})
-		_, _ = fmt.Fprintf(w, string(msg))
-	} else if errors.Is(err, InvalidMoveError) {
+		_, _ = fmt.Fprint(w, string(msg))
+	} else if errors.Is(err, ErrInvalidMove) {
 		returnError(w, http.StatusBadRequest, "Invalid move")
 		w.WriteHeader(http.StatusBadRequest)
 		msg, _ := json.Marshal(MaybeErrorResponce{Error: "Wrong turn"})
-		_, _ = fmt.Fprintf(w, string(msg))
+		_, _ = fmt.Fprint(w, string(msg))
 	} else if err != nil {
 		returnError(w, http.StatusInternalServerError, "Error placing move: "+err.Error())
 	} else {

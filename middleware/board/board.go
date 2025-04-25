@@ -170,11 +170,11 @@ func (b *Board) calculateWinner() {
 	}
 }
 
-var InvalidMoveError = errors.New("Invalid move")
+var ErrInvalidMove = errors.New("invalid move")
 
 func (b *Board) Place(coord Coord) error {
 	if !b.AvailableMoves[coord.Index] {
-		return InvalidMoveError
+		return ErrInvalidMove
 	}
 	b.Moves += coord.Str
 	b.Board[coord.Index] = rune(b.CurrentPlayer[0])

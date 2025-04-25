@@ -11,11 +11,11 @@ import (
 	boardApi "github.com/Alexdat2000/superXO/middleware/board"
 )
 
-var GameNotFoundError = errors.New("Game not found")
-var OpponentAlreadyFoundError = errors.New("Opponent already found")
-var NoAccessToPlaceError = errors.New("No access to place")
-var WrongTurnError = errors.New("Wrong turn")
-var InvalidMoveError = errors.New("Invalid move")
+var ErrGameNotFound = errors.New("game not found")
+var ErrOpponentAlreadyFound = errors.New("opponent already found")
+var ErrNoAccessToPlace = errors.New("no access to place")
+var ErrWrongTurn = errors.New("wrong turn")
+var ErrInvalidMove = errors.New("invalid move")
 
 type Game struct {
 	ID        string
@@ -61,7 +61,7 @@ func getGame(gameId, playerId string) (*Game, string, error) {
 	}
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, "", GameNotFoundError
+			return nil, "", ErrGameNotFound
 		}
 		return nil, "", err
 	}
@@ -75,7 +75,7 @@ func getGame(gameId, playerId string) (*Game, string, error) {
 	}
 	if !game.Player2.Valid {
 		err := matchmake(gameId, playerId)
-		if errors.Is(err, OpponentAlreadyFoundError) {
+		if errors.Is(err, ErrOpponentAlreadyFound) {
 			return &game, "spectator", nil
 		} else if err != nil {
 			return nil, "", err
@@ -89,13 +89,13 @@ func getGame(gameId, playerId string) (*Game, string, error) {
 
 func createGame(gameId, playerId, bot, time string) error {
 	if len(gameId) != 10 {
-		return errors.New("Invalid game id: " + gameId)
+		return errors.New("invalid game id: " + gameId)
 	}
 	if len(playerId) != 10 {
-		return errors.New("Invalid player id: " + playerId)
+		return errors.New("invalid player id: " + playerId)
 	}
 	if bot != "1" && bot != "2" && bot != "3" && bot != "" {
-		return errors.New("Invalid bot")
+		return errors.New("invalid bot")
 	}
 	if bot != "" {
 		query := `
@@ -107,15 +107,15 @@ func createGame(gameId, playerId, bot, time string) error {
 	} else if time != "" {
 		parts := strings.Split(time, ":")
 		if len(parts) != 2 {
-			return errors.New("Invalid time")
+			return errors.New("invalid time")
 		}
 		base, err := strconv.Atoi(parts[0])
 		if err != nil || base <= 0 || base > 60*60 {
-			return errors.New("Invalid time")
+			return errors.New("invalid time")
 		}
 		add, err := strconv.Atoi(parts[1])
 		if err != nil || add < 0 || add > 60 {
-			return errors.New("Invalid time")
+			return errors.New("invalid time")
 		}
 		query := `
         INSERT INTO games (id, player1, time_base, time_delta)
@@ -140,7 +140,7 @@ func matchmake(gameId, playerId string) error {
 		return err
 	}
 	if !time_base.Valid || !time_delta.Valid {
-		return errors.New("Invalid time for game")
+		return errors.New("invalid time for game")
 	}
 
 	query := `
@@ -163,7 +163,7 @@ func matchmake(gameId, playerId string) error {
 		return err
 	}
 	if rowsAffected == 0 {
-		return OpponentAlreadyFoundError
+		return ErrOpponentAlreadyFound
 	}
 	return nil
 }
@@ -197,31 +197,31 @@ func place(gameId, playerId, move string) (*boardApi.Board, error) {
 		&game.Time2Left,
 	)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		if err == sql.ErrNoRows {
-			return nil, GameNotFoundError
+			return nil, ErrGameNotFound
 		}
 		return nil, err
 	}
 	if !game.Player1.Valid || !game.Player2.Valid {
-		tx.Rollback()
-		return nil, errors.New("Can't place in not started game")
+		_ = tx.Rollback()
+		return nil, errors.New("can't place in not started game")
 	}
 	if (playerId != game.Player1.String) && (playerId != game.Player2.String) {
-		tx.Rollback()
-		return nil, NoAccessToPlaceError
+		_ = tx.Rollback()
+		return nil, ErrNoAccessToPlace
 	}
 	if (len(game.Moves)%4 == 0 && playerId != game.Player1.String) ||
 		(len(game.Moves)%4 == 2 && playerId != game.Player2.String) {
-		tx.Rollback()
-		return nil, WrongTurnError
+		_ = tx.Rollback()
+		return nil, ErrWrongTurn
 	}
 
 	board := boardApi.NewBoard(game.Moves)
 	err = board.Place(boardApi.StringToCoord(move))
 	if err != nil {
-		tx.Rollback()
-		return nil, InvalidMoveError
+		_ = tx.Rollback()
+		return nil, ErrInvalidMove
 	}
 
 	if !game.Time1Left.Valid {
@@ -233,7 +233,7 @@ func place(gameId, playerId, move string) (*boardApi.Board, error) {
 	`
 		_, err = tx.Exec(queryUpdate, move, gameId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return nil, err
 		}
 		return board, tx.Commit()
@@ -249,7 +249,7 @@ func place(gameId, playerId, move string) (*boardApi.Board, error) {
 	`
 		_, err = tx.Exec(queryUpdate, move, gameId, int64(game.Time1Left.Int32)-(time.Now().UnixMilli()-game.Time1At.Int64), time.Now().UnixMilli())
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return nil, err
 		}
 	} else {
@@ -264,7 +264,7 @@ func place(gameId, playerId, move string) (*boardApi.Board, error) {
 	`
 		_, err = tx.Exec(queryUpdate, move, gameId, int64(game.Time2Left.Int32)-(time.Now().UnixMilli()-game.Time2At.Int64), time.Now().UnixMilli())
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return nil, err
 		}
 	}

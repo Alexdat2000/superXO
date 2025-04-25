@@ -88,7 +88,7 @@ class BoardFastest {
     return available;
   }
 
-  int GetRandomAvailableMove() {
+  int GetRandomAvailableMove() const {
     if (winner != 0) {
       return -1;
     }
@@ -98,7 +98,7 @@ class BoardFastest {
 
     size_t tarSubBoard = last_move / 9 % 3 * 3 + last_move % 3;
     if (getMark(subWinners, tarSubBoard)) {
-      int take = gen_board() % (81 - move_cnt) + 1;
+      int take = gen_board() % free_places + 1;
       for (int row = 0; row < 9; row++) {
         for (int col = 0; col < 9; col++) {
           size_t board = row / 3 * 3 + col / 3;
@@ -114,14 +114,15 @@ class BoardFastest {
       }
       return -1;
     } else {
-      int av = __builtin_popcount(
-          (boardState[tarSubBoard] | (boardState[tarSubBoard] >> 1)) & 0x15555);
+      int av = 9 - __builtin_popcount((boardState[tarSubBoard] |
+                                       (boardState[tarSubBoard] >> 1)) &
+                                      0x15555);
       int take = gen_board() % av + 1;
       for (int row = 0; row < 3; row++) {
         for (int col = 0; col < 3; col++) {
           if (getMark(boardState[tarSubBoard], row * 3 + col) == 0) {
-            av--;
-            if (av == 0) {
+            take--;
+            if (take == 0) {
               return (tarSubBoard / 3 * 3 + row) * 9 +
                      (tarSubBoard % 3 * 3 + col);
             }
@@ -134,7 +135,7 @@ class BoardFastest {
   }
 
   void Place(size_t row, size_t col) {
-    move_cnt++;
+    free_places--;
     size_t sub_board = row / 3 * 3 + col / 3;
     size_t inside = row % 3 * 3 + col % 3;
     boardState[sub_board] += (currentPlayer << (inside * 2));
@@ -143,6 +144,12 @@ class BoardFastest {
         calcSubWinner(boardState[sub_board], row % 3 * 3 + col % 3);
     subWinners = (subWinners & (~(3 << (2 * sub_board)))) |
                  (subboard_winner << (2 * sub_board));
+    if (getMark(subWinners, row / 3 * 3 + col / 3)) {
+      free_places -=
+          9 - __builtin_popcount((boardState[row / 3 * 3 + col / 3] |
+                                  (boardState[row / 3 * 3 + col / 3] >> 1)) &
+                                 0x15555);
+    }
     winner = calcSubWinner(subWinners, row / 3 * 3 + col / 3);
     last_move = row * 9 + col;
   }
@@ -175,7 +182,7 @@ class BoardFastest {
   uint32_t subWinners = 0;
   uint32_t winner = 0;
   size_t last_move = -1;
-  size_t move_cnt = 0;
+  size_t free_places = 81;
 };
 
 #endif  // BOARD_FASTEST_HPP

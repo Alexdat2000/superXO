@@ -5,70 +5,14 @@
 
 #include "../board/board_fast.hpp"
 #include "../coord.hpp"
-#include "minimax_alpha_beta.cpp"
 
 namespace better_mcts {
 
 constexpr double ERROR_THRESHOLD = 0.05;
-constexpr double CERTAINTY_THRESHOLD = 0.9;
+constexpr double CERTAINTY_THRESHOLD = 0.95;
 constexpr double EXPANSION_CONSTANT = 1.03125;
 
 static std::mt19937 gen_mcts(static_cast<unsigned int>(std::time(nullptr)));
-
-std::map<uint32_t, size_t> move1, move2;
-
-void init() {
-  for (size_t i = 0; i < 19683; i++) {
-    vector<int> conf(9);
-    int n = i;
-    for (size_t j = 0; j < 9; j++) {
-      conf[j] = n % 3;
-      n /= 3;
-    }
-
-    int win = 0;
-    for (auto [a, b, c] : gameRows2) {
-      if (conf[a] == conf[b] && conf[a] == conf[c] && conf[a] != 0) {
-        win = conf[a];
-        break;
-      }
-    }
-    if (win) {
-      continue;
-    }
-
-    for (int j = 0; j < 9; j++) {
-      if (conf[j] != 0) {
-        continue;
-      }
-      auto conf2 = conf;
-      conf2[j] = 1;
-      int win1 = 0;
-      for (auto [a, b, c] : gameRows2) {
-        if (conf2[a] == conf2[b] && conf2[a] == conf2[c] && conf2[a] != 0) {
-          win1 = conf2[a];
-          break;
-        }
-      }
-      if (win1 == 1) {
-        move1[i] = j;
-      }
-
-      conf2 = conf;
-      conf2[j] = 1;
-      int win2 = 0;
-      for (auto [a, b, c] : gameRows2) {
-        if (conf2[a] == conf2[b] && conf2[a] == conf2[c] && conf2[a] != 0) {
-          win2 = conf2[a];
-          break;
-        }
-      }
-      if (win2 == 2) {
-        move2[i] = j;
-      }
-    }
-  }
-}
 
 struct MCTSNode {
  public:
@@ -129,33 +73,6 @@ struct MCTSNode {
     auto new_board = board;
     while (new_board.Winner() == 0) {
       auto moves = new_board.calculateAvailableMoves();
-      if (moves.size() > 9) {
-        auto move = moves[gen_mcts() % moves.size()];
-        new_board.Place(move / 9, move % 9);
-        continue;
-      }
-
-      int board = Coord(moves[0]).inSubBoard();
-      int board_content = new_board.GetSubboard(board);
-      if (new_board.CurrentPlayer() == 1) {
-        if (move1.count(board_content)) {
-          Coord move = Coord(board / 3 * 3 + move1[board_content] / 3,
-                             board % 3 * 3 + move1[board_content] % 3);
-          if (find(moves.begin(), moves.end(), move.index) != moves.end()) {
-            new_board.Place(move.row, move.col);
-            continue;
-          }
-        }
-      } else {
-        if (move2.count(board_content)) {
-          Coord move = Coord(board / 3 * 3 + move2[board_content] / 3,
-                             board % 3 * 3 + move2[board_content] % 3);
-          if (find(moves.begin(), moves.end(), move.index) != moves.end()) {
-            new_board.Place(move.row, move.col);
-            continue;
-          }
-        }
-      }
       auto move = moves[gen_mcts() % moves.size()];
       new_board.Place(move / 9, move % 9);
     }

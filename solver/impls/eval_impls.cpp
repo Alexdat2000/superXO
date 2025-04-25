@@ -5,7 +5,6 @@
 
 int main() {
   std::array<int, 4> winners{};
-  better_mcts::init();
   for (int i = 0; i < 100; i++) {
     BoardFast board("");
     while (board.Winner() == 0) {

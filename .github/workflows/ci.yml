@@ -1,8 +1,23 @@
-- name: Install Google Test
-  run: sudo apt-get install -y libgtest-dev
+name: C/C++ test CI
 
-- name: Build
-  run: g++ solver/test.cpp -o test -lgtest -pthread
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
-- name: Run tests
-  run: ./test
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Google Test
+        run: sudo apt-get install -y libgtest-dev
+
+      - name: Build
+        run: g++ solver/test.cpp -o test -lgtest -pthread
+
+      - name: Run tests
+        run: ./test

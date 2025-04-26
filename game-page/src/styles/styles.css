@@ -32,6 +32,12 @@ main {
   align-items: center;
 }
 
+#game-status {
+  color: #ccc;
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+}
+
 footer {
   background: #262522;
   display: flex;

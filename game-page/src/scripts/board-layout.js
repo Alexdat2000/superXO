@@ -80,12 +80,16 @@ export function UpdateBoard(state) {
     }
   }
 
-  if (state.gameState === "spectator") {
-    return;
-  }
-
   const status_div = document.getElementById("game-status");
-  if (state.gameState == "init") {
+  if (state.winner == "X") {
+    status_div.textContent = "Player 1 won!";
+  } else if (state.winner == "O") {
+    status_div.textContent = "Player 2 won!";
+  } else if (state.winner == "D") {
+    status_div.textContent = "It's a draw!";
+  } else if (state.gameState == "spectator") {
+    status_div.textContent = "You are spectating";
+  } else if (state.gameState == "init") {
     status_div.textContent = "Waiting for opponent to join";
   } else if (state.gameState == "server") {
     status_div.textContent = "Waiting for opponent's move";
@@ -99,16 +103,10 @@ export function UpdateBoard(state) {
     } else {
       status_div.textContent = "Your turn";
     }
-  } else if (state.winner == "X") {
-    status_div.textContent = "Player 1 won!";
-  } else if (state.winner == "O") {
-    status_div.textContent = "Player 2 won!";
-  } else if (state.winner == "D") {
-    status_div.textContent = "It's a draw!";
   } else {
     return;
   }
-  if (state.HasWinner()) {
+  if (state.gameState === "spectator" || state.HasWinner()) {
     return;
   }
   if (state.gameState === "init" || state.gameState === "server") {

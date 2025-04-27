@@ -128,9 +128,8 @@ func HandlePlace(w http.ResponseWriter, r *http.Request) {
 		msg, _ := json.Marshal(MaybeErrorResponce{Error: "Wrong turn"})
 		_, _ = fmt.Fprint(w, string(msg))
 	} else if errors.Is(err, ErrInvalidMove) {
-		returnError(w, http.StatusBadRequest, "Invalid move")
 		w.WriteHeader(http.StatusBadRequest)
-		msg, _ := json.Marshal(MaybeErrorResponce{Error: "Wrong turn"})
+		msg, _ := json.Marshal(MaybeErrorResponce{Error: "Invalid move"})
 		_, _ = fmt.Fprint(w, string(msg))
 	} else if err != nil {
 		returnError(w, http.StatusInternalServerError, "Error placing move: "+err.Error())

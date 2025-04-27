@@ -56,14 +56,14 @@ func getGame(gameId, playerId string) (*Game, string, error) {
 		&game.Time2At,
 		&game.Time2Left,
 	)
-	if !game.Player1.Valid {
-		log.Fatalf("Player1 for game %s is empty", gameId)
-	}
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, "", ErrGameNotFound
 		}
 		return nil, "", err
+	}
+	if !game.Player1.Valid {
+		log.Fatalf("Player1 for game %s is empty", gameId)
 	}
 
 	// Check if player is in the game and try to matchmake

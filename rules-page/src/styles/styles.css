@@ -17,7 +17,7 @@ header {
   justify-content: left;
   align-items: center;
   gap: 30px;
-}
+  }
   
 .header-fast-link {
   color: #ccc;
@@ -30,39 +30,17 @@ main {
   color: #ccc;
   font-family: "Segoe UI", Arial, sans-serif;
   margin: 0;
-}
-
-.main-menu {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.menu-row-title {
-  font-size: 20px;
-  margin-top: 20px;
-  margin-bottom: 10px;
-}
-
-.buttons-row {
-  display: flex;
-  gap: 10px;
-}
-
-.menu-button {
-  background-color: #333;
-  color: #fff;
-  padding: 15px 30px;
-  border: none;
-  border-radius: 10px;
-  font-size: 20px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  width: 150px;
-  height: 80px;
+}
+
+#rules {  
+  font-family: Arial, sans-serif;
+  font-size: 17px;
+
+  width: 80vh;
+  display: flex;
+  flex-direction: column;
 }
 
 footer {

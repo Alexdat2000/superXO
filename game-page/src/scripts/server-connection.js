@@ -2,12 +2,12 @@ export async function GetGameFromServer(gameId) {
   try {
     const response = await fetch("/api/getGame?id=" + gameId);
     if (!response.ok) {
-      alert(response.json()["error"]);
+      console.log(response.json()["error"]);
       return "";
     }
     return response.json();
   } catch (error) {
-    alert(error.message);
+    console.log(error.message);
     return "";
   }
 }
@@ -16,9 +16,9 @@ export async function SendMoveToServer(gameId, move) {
   try {
     const response = await fetch("/api/place?id=" + gameId + "&move=" + move);
     if (!response.ok) {
-      alert(response.json()["error"]);
+      console.log(response.json()["error"]);
     }
   } catch (error) {
-    alert(error.message);
+    console.log(error.message);
   }
 }
